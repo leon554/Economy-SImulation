@@ -1,17 +1,19 @@
 import { Worker } from "./worker";
 import { drawEntities, setEntitiesPos, addDrawEvent } from "./drawingUtil";
-import { ResourceTable, shuffleArray } from "./util";
+import { CreateResources, ResourceTable, shuffleArray } from "./util";
 import { d } from "./main";
 import { color } from "./draw/Color";
 import { HorizontalAllign } from "./draw/Draw";
 import { Bank } from "./bank";
 import { Event } from "./event";
 import { SaleType } from "./type";
+import { SpecialisedWorker } from "./specialisedWorke";
 
 export let days = 0;
+let currentSimulationStep = ""
 let totalMoney = 0
 let resourcePriceString = ""
-addDrawEvent(() => {d.text(`Day: ${days}`,22,10,25,HorizontalAllign.start,undefined,new color(255, 255, 255));});
+addDrawEvent(() => {d.text(`Day: ${days}, Step: ${currentSimulationStep}`,22,10,25,HorizontalAllign.start,undefined,new color(255, 255, 255));});
 addDrawEvent(() => {d.text(`Money In Circulation: $${Math.round(totalMoney)}`,12,10,50, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 export let entities: (Worker| Bank)[] = [];
@@ -19,10 +21,13 @@ export let resourcePrices : { [key: string]: {avgSellPrice: number, avgBuyPrice:
 export const saleEvent = new Event<(saleData: SaleType) => void>()
 export const updateUIEvent = new Event<() => void>()
 
-entities.push(new Worker(40, { water: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}, sheep: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0} }, "water"));
-entities.push(new Worker(40, { water: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}, sheep: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0} }, "sheep"));
-entities.push(new Worker(4000, { water: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}, sheep: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0} }, "butcher"));
-entities.push(new Worker(40, { water: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}, sheep: {amount: 2, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0} }, "sheep"));
+entities.push(new Worker(40, CreateResources(["water", "meat"], [4,4]) , "water"));
+entities.push(new Worker(40, CreateResources(["water", "meat"], [4,4]), "sheep"));
+entities.push(new Worker(40, CreateResources(["water", "meat"], [4,4]), "sheep"));
+entities.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [4,4]), "butcher", "sheep", "meat"));
+entities.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [4,4]), "skinner", "sheep", "wool"));
+entities.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [4,4]), "shirt", "wool", "shirt"));
+entities.push(new Worker(40, CreateResources(["water", "meat"], [4,4]), "sheep"));
 entities.push(new Bank(10000))
 setEntitiesPos(entities);
 
@@ -30,15 +35,16 @@ setEntitiesPos(entities);
 export async function Loop() {
     totalMoney = 0
     drawEntities();
-    console.log("1")
+    currentSimulationStep = "Working"
     for(const e of entities){
         await e.work()
         totalMoney += e.money
     }
-    
+    currentSimulationStep = "Trading"
     await handleTransactions()
     getResourcePrice()
-
+    //make it so base workers work first
+    currentSimulationStep = "Consuming Resources"
     const entitiesIDToDel: number[] = []
     entities.filter(e => e instanceof Worker).forEach((e) => {
         const alive = e.consumeResources()

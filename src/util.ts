@@ -1,3 +1,4 @@
+import { ResourceType } from "./type"
 import { Worker } from "./worker"
 
 let workerID = 0
@@ -25,16 +26,31 @@ export function findWorkerByID(workers: Worker[], id: number){
 export const ResourceTable : {[key: string]: string} = {
   "water": "💧",
   "sheep": "🐑",
-  "meat": "🥩"
+  "meat": "🥩",
+  "wool": "🧶",
+  "shirt": "👕"
 }
 export const profesionTable : {[key: string]: string} = {
   "water": "💧",
   "sheep": "🐑",
-  "butcher": "🥩"
+  "butcher": "🥩",
+  "skinner": "🧶",
+  "shirt": "👕"
 }
 export const profesionIcon : {[key: string]: string} = {
   "water": "👷",
   "sheep": "🧑‍🌾",
   "bank": "🏦",
   "butcher": "🙋"
+}
+
+export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number){
+  return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0};
+}
+export function CreateResources(resources: string[], amounts: number[], buyPrice: number = 10, sellPrice: number = 10){
+  let resourcesObj: ResourceType = {}
+  resources.forEach((r, i) => {
+    resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice)
+  })
+  return resourcesObj
 }

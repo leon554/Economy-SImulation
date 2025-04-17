@@ -30,12 +30,12 @@ export class Bank implements Drawable {
         const workers = entities.filter(e => e instanceof Worker)
         //add event to update ui
         for(const e of workers){
-            const sheepAmt = e.resources["sheep"].amount
+            const sheepAmt = e.resources["meat"].amount
             const waterAmt = e.resources["water"].amount
             const minResourceAmt = (MIN_VITAL_RESOURCE_AMT - 2 > 0) ? MIN_VITAL_RESOURCE_AMT - 2 : MIN_VITAL_RESOURCE_AMT
 
             if(sheepAmt < minResourceAmt){
-                await this.payWelfare("sheep", e)
+                await this.payWelfare("meat", e)
             }
             if(waterAmt < minResourceAmt){
                 await this.payWelfare("water", e)

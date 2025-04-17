@@ -1,6 +1,6 @@
 import { GATHER_AMOUNT, MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "./constants";
 import { drawTransAction } from "./drawingUtil";
-import { days, entities, saleEvent, updateUIEvent } from "./simulation";
+import { days, saleEvent, updateUIEvent } from "./simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason} from "./type";
 import { findWorkerByID, getID, profesionTable, ResourceTable } from "./util";
 
@@ -28,13 +28,16 @@ export class Worker implements Drawable {
         this.icon = "circle";
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
-    private updateDrawData() {
+    protected updateDrawData() {
         this.data = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} ^ ${this.getResourcesAsString()}`;
     }
-    private getResourcesAsString() {
+    protected getResourcesAsString() {
         let resources: string = "";
         Object.entries(this.resources).map((entry) => {
-            resources += `${ResourceTable[entry[0]]}: ${entry[1].amount} $${entry[1].sellPrice}`;
+            if(entry[1].amount > 0){
+            
+                resources += `[${entry[1].amount}${ResourceTable[entry[0]]}$${entry[1].sellPrice}] `;
+            }
         });
         return resources;
     }
@@ -47,13 +50,13 @@ export class Worker implements Drawable {
             `------Worker-ID: ${this.id}------\nMoney: ${this.money}\nResources-----------------\n${resources}--------------------------`
         );
     }
-    private checkAndCreateResource(resourceName: string){
+    protected checkAndCreateResource(resourceName: string){
         if(this.resources[resourceName] == null){
             this.resources[resourceName]  = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}
         }
     }
-    private checkAndCreateResources(resources: string[]){
-        resources.forEach(resource => {
+    protected checkAndCreateResources(){
+        Object.keys(ResourceTable).forEach(resource => {
             if(this.resources[resource] == null){
                 this.resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}
             }
@@ -69,50 +72,33 @@ export class Worker implements Drawable {
                 this.checkAndCreateResource("sheep")
                 this.resources["sheep"].amount += GATHER_AMOUNT;
                 break;
-            case "butcher":
-                this.checkAndCreateResource("meat")
-                if(this.resources["sheep"].amount > 1){
-                    for(let i = 0; i < this.resources["sheep"].amount; i++){
-                        this.resources["meat"].amount += 1;
-                        this.resources["sheep"].amount -= 1;
-                    }
-                }
-                let supplyLeft = true
-                let boughtAmt = 0
-                while(supplyLeft && boughtAmt < 10){
-                    supplyLeft = await this.MakeBuyOffer(entities.filter(e => e instanceof Worker), "sheep", Number.MAX_VALUE)
-                    boughtAmt++
-                }
-                break;
         }
         updateUIEvent.emit()
     }
     public consumeResources(){
         this.resources["water"].amount -= 1
-        this.resources["sheep"].amount -= 1
+        this.resources["meat"].amount -= 1
 
-        if(this.resources["water"].amount < 0 || this.resources["sheep"].amount < 0){
+        if(this.resources["water"].amount < 0 || this.resources["meat"].amount < 0){
             return false
         }else{
             return true
         }
     }
     public async makeBuyOffers(people: Worker[]){
-        this.checkAndCreateResources(["water", "sheep", "meat"])
+        this.checkAndCreateResources()
         const hasBoughtArr: boolean[] = []
 
         hasBoughtArr.push(await this.MakeBuyOffer(people, "water", MIN_VITAL_RESOURCE_AMT))
-        hasBoughtArr.push(await  this.MakeBuyOffer(people, "sheep", MIN_VITAL_RESOURCE_AMT))
+        //hasBoughtArr.push(await  this.MakeBuyOffer(people, "sheep", MIN_VITAL_RESOURCE_AMT))
         hasBoughtArr.push(await  this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT))
 
         return hasBoughtArr.includes(true)
     }
-    private async MakeBuyOffer(people: Worker[], resource: string, minResourceAmt: number){
+    protected async MakeBuyOffer(people: Worker[], resource: string, minResourceAmt: number){
         if(this.resources[resource].amount >= minResourceAmt) return false
-        if(this.resources[resource].buyPrice >= this.money) {
-            console.log("Not enought money"); 
-            return false;
-        }
+        if(this.resources[resource].buyPrice >= this.money) return false 
+
         while(this.resources[resource].buyPrice < this.money){
             for (const person of people) {
                 if(person.id == this.id) continue
@@ -135,16 +121,12 @@ export class Worker implements Drawable {
 
     public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: Worker[]): Promise<SellerReturnType>{
         const resourceReserveAmount = 6
-        this.checkAndCreateResources(["water", "sheep", "meat"])
+        this.checkAndCreateResources()
 
         if(this.resources[resource].amount < resourceReserveAmount) return {saleSucces: false, denyReason: DenyReason.NotEnoughSupply}
-        if(price < this.resources[resource].sellPrice ) {
-            if(this.resources[resource].dayPriceLastUpdated < days){
-                this.resources[resource].sellPrice -= this.resources[resource].sellPrice > 1 ? 1 : 0
-                this.resources[resource].dayPriceLastUpdated = days
-            }
-            return {saleSucces: false, denyReason: DenyReason.OfferToLow}
-        }
+        
+        if(this.shouldReduceSellPrice(price, resource)) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
+
         const buyer = findWorkerByID(workers, buyerId)
         const seller = this
 
@@ -164,9 +146,25 @@ export class Worker implements Drawable {
 
         updateUIEvent.emit()
 
-        this.resources[resource].sellPrice += (this.resources[resource].sellPrice < MAX_BUY_SELL_PRICE) ? 1: 0
+       this.increaseSellPriceIfSoldOut(resource, resourceReserveAmount)
+
         console.log(`Buyer ${buyer.id} bought ${resource} for ${price} from seller ${seller.id}`)
         return {saleSucces: true, denyReason: DenyReason.None}
     }
 
+    protected shouldReduceSellPrice(offerPrice: number, resource: string){
+        if(offerPrice > this.resources[resource].sellPrice ) return false
+
+        if(this.resources[resource].dayPriceLastUpdated < days){
+            this.resources[resource].sellPrice -= this.resources[resource].sellPrice > 1 ? 1 : 0
+            this.resources[resource].dayPriceLastUpdated = days
+        }
+
+        return true
+    }
+    protected increaseSellPriceIfSoldOut(resource: string, resourceReserveAmount: number){
+        if(this.resources[resource].amount > resourceReserveAmount) return 
+        
+        this.resources[resource].sellPrice += (this.resources[resource].sellPrice < MAX_BUY_SELL_PRICE) ? 1: 0
+    }
 }

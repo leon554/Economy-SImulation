@@ -25,16 +25,17 @@ export function addDrawEvent(func: Function){
 export function drawEntities(){
     d.Clear()
     entities.forEach((e) => {
+        const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
         const upperLowerData = e.data.split("^")
-        d.text(upperLowerData[0], 10, e.position.x, e.position.y - 17, undefined, undefined, new color(255,255,255))
-        d.text(profesionIcon[e.profesion], 18, e.position.x, e.position.y, undefined, undefined, new color(255,255,100))
+        d.text(upperLowerData[0], 11, e.position.x, e.position.y - 17, undefined, undefined, new color(255,255,255))
+        d.text(profEmoji, 18, e.position.x, e.position.y, undefined, undefined, new color(255,255,100))
         if(upperLowerData.length < 2) return
-        d.text(upperLowerData[1], 10, e.position.x, e.position.y + 17, undefined, undefined, new color(255,255,255))
+        d.text(upperLowerData[1], 11, e.position.x, e.position.y + 17, undefined, undefined, new color(255,255,255))
     })
     drawEvents.forEach(e => e())
 }
 export function setEntitiesPos(entities: Drawable[]){
-    const points = generateCirclePoints(window.innerWidth/2.7, entities.length, window.innerWidth/2.1, window.innerHeight/2)
+    const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
     entities.forEach((e, i) => {
         e.position = {x: points[i].x, y: points[i].y}  
     })

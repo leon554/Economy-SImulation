@@ -25,3 +25,7 @@ canvas{
   overflow: hidden;
   border: 1px solid white;
 }
+.bodydiv{
+  display: flex;
+  flex-direction: column;
+}

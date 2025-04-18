@@ -1,8 +1,8 @@
 import { GATHER_AMOUNT, MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "./constants";
-import { drawTransAction } from "./drawingUtil";
+import { drawEntities, drawResourceTransaction, drawTransAction, getCenterPoint } from "./drawingUtil";
 import { days, saleEvent, updateUIEvent } from "./simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason} from "./type";
-import { findWorkerByID, getID, profesionTable, ResourceTable } from "./util";
+import { findWorkerByID, getID, profesionTable, ProfesionToResource, ResourceTable } from "./util";
 
 export class Worker implements Drawable {
     resources: ResourceType;
@@ -12,6 +12,7 @@ export class Worker implements Drawable {
     data: string;
     icon: string;
     profesion: string;
+    currentActivity: string = "idle"
 
     constructor(startingMoney: number, startingResources: ResourceType, profesion: string) {
         //add age
@@ -29,14 +30,15 @@ export class Worker implements Drawable {
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     protected updateDrawData() {
-        this.data = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} ^ ${this.getResourcesAsString()}`;
+        console.log("draw data updated for id" + this.id)
+        this.data = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} ^ ${this.getResourcesAsString()} ^ ${this.currentActivity}`;
     }
     protected getResourcesAsString() {
         let resources: string = "";
         Object.entries(this.resources).map((entry) => {
             if(entry[1].amount > 0){
             
-                resources += `[${entry[1].amount}${ResourceTable[entry[0]]}$${entry[1].sellPrice}] `;
+                resources += `${ResourceTable[entry[0]]}${entry[1].amount}`;
             }
         });
         return resources;
@@ -63,21 +65,21 @@ export class Worker implements Drawable {
         })
     }
     public async work() {
-        switch (this.profesion) {
-            case "water":
-                this.checkAndCreateResource("water")
-                this.resources["water"].amount += GATHER_AMOUNT;
-                break;
-            case "sheep":
-                this.checkAndCreateResource("sheep")
-                this.resources["sheep"].amount += GATHER_AMOUNT;
-                break;
+        this.checkAndCreateResource(ProfesionToResource[this.profesion])
+        for(let i = 0; i< GATHER_AMOUNT;i++){
+            await drawResourceTransaction(getCenterPoint(), this.position, ProfesionToResource[this.profesion])
+            this.resources[ProfesionToResource[this.profesion]].amount += 1;
+            this.currentActivity = `Worked +${1}${ResourceTable[ProfesionToResource[this.profesion]]} Total ${i +1}`
+            await updateUIEvent.emit()
+            drawEntities()
         }
-        updateUIEvent.emit()
+        await updateUIEvent.emit()
+        drawEntities()
     }
     public consumeResources(){
         this.resources["water"].amount -= 1
         this.resources["meat"].amount -= 1
+        this.currentActivity = `Consumed 1${ResourceTable["water"]} & 1${ResourceTable["sheep"]}`
 
         if(this.resources["water"].amount < 0 || this.resources["meat"].amount < 0){
             return false
@@ -100,12 +102,14 @@ export class Worker implements Drawable {
         if(this.resources[resource].buyPrice >= this.money) return false 
 
         while(this.resources[resource].buyPrice < this.money){
-            for (const person of people) {
-                if(person.id == this.id) continue
+            for (const potentialSeller of people) {
+                if(potentialSeller.id == this.id) continue
 
-                const buyOfferSucces = await person.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
+                this.currentActivity = `Offer to ${potentialSeller.id} for ${ResourceTable[resource]}`
+                const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
             
                 if(buyOfferSucces.saleSucces){
+                    this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
                     this.resources[resource].buyPrice -= this.resources[resource].buyPrice > 1 ? 1 : 0
                     return true
                 }
@@ -133,21 +137,23 @@ export class Worker implements Drawable {
         buyer.money -= price
         seller.resources[resource].amount--
 
-        updateUIEvent.emit()
+        await updateUIEvent.emit()
         
         await drawTransAction(buyer, seller, resource)
 
         seller.money += (price * (1-TAX_RATE))
         buyer.resources[resource].amount++
 
-        updateUIEvent.emit()
+        await updateUIEvent.emit()
 
         await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price})
 
-        updateUIEvent.emit()
+        await updateUIEvent.emit()
 
        this.increaseSellPriceIfSoldOut(resource, resourceReserveAmount)
 
+
+        this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
         console.log(`Buyer ${buyer.id} bought ${resource} for ${price} from seller ${seller.id}`)
         return {saleSucces: true, denyReason: DenyReason.None}
     }

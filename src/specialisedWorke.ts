@@ -13,6 +13,7 @@ export class SpecialisedWorker extends Worker implements Drawable{
         this.outputResource = outputResource
     }
     //make it so worker sells for higer than buy
+    //make it so worker doesnt by all the supply
     override async work(){
         this.checkAndCreateResources()
         let supplyLeft = true

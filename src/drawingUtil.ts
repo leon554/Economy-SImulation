@@ -1,9 +1,11 @@
 import { Drawable, Position } from "./type";
-import { d } from "./main";
+import { canvas, d } from "./main";
 import { color } from "./draw/Color";
 import { Worker } from "./worker"
 import { profesionIcon, ResourceTable } from "./util";
 import { entities } from "./simulation";
+import { HorizontalAllign } from "./draw/Draw";
+import { GAME_SPEED } from "./constants";
 
 export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
     const points: { x: number, y: number }[] = [];
@@ -27,12 +29,15 @@ export function drawEntities(){
     entities.forEach((e) => {
         const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
         const upperLowerData = e.data.split("^")
-        d.text(upperLowerData[0], 11, e.position.x, e.position.y - 17, undefined, undefined, new color(255,255,255))
-        d.text(profEmoji, 18, e.position.x, e.position.y, undefined, undefined, new color(255,255,100))
+        d.text(upperLowerData[0], 11, e.position.x, e.position.y - 17, HorizontalAllign.centre, undefined, new color(255,255,255))
+        d.text(profEmoji, 18, e.position.x, e.position.y, HorizontalAllign.centre, undefined, new color(255,255,100))
         if(upperLowerData.length < 2) return
-        d.text(upperLowerData[1], 11, e.position.x, e.position.y + 17, undefined, undefined, new color(255,255,255))
+        d.text(upperLowerData[1], 11, e.position.x, e.position.y + 17, HorizontalAllign.centre, undefined, new color(255,255,255))
+        if(upperLowerData.length < 3) return
+        d.text(upperLowerData[2], 11, e.position.x, e.position.y + 32, HorizontalAllign.centre, undefined, new color(255,255,255))
     })
     drawEvents.forEach(e => e())
+    console.log("ui updated")
 }
 export function setEntitiesPos(entities: Drawable[]){
     const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
@@ -40,7 +45,6 @@ export function setEntitiesPos(entities: Drawable[]){
         e.position = {x: points[i].x, y: points[i].y}  
     })
 }
-
 function generatePoints(start: number[], end: number[]) {
     const points = [];
     const stepX = (end[0] - start[0]) / 49; // Divide by 19 because we want 20 points, including start and end
@@ -50,8 +54,7 @@ function generatePoints(start: number[], end: number[]) {
     }
     return points;
 }
-
-const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
+export const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
 export async function drawTransAction(buyer: Worker, seller: Worker, resource: string){
     const sToB = generatePoints([seller.position.x, seller.position.y], [buyer.position.x, buyer.position.y])
     const bTos = generatePoints( [buyer.position.x, buyer.position.y], [seller.position.x, seller.position.y])
@@ -60,16 +63,25 @@ export async function drawTransAction(buyer: Worker, seller: Worker, resource: s
         drawEntities()
         d.text(ResourceTable[resource], 15, sToB[i][0], sToB[i][1])
         d.text("💰", 15, bTos[i][0], bTos[i][1])
-        await sleep(10)
+        await sleep(10 * Math.abs(GAME_SPEED))
     }
 }
 export async function drawMoneyTransaction(from: Position, To: Position){
     const fTot = generatePoints([from.x, from.y], [To.x, To.y])
-   
-    
     for(let i = 0; i < fTot.length; i++){
         drawEntities()
         d.text("💰", 15, fTot[i][0], fTot[i][1])
-        await sleep(10)
+        await sleep(10 * Math.abs(GAME_SPEED))
     }
+}
+export async function drawResourceTransaction(from: Position, To: Position, resource: string){
+    const fTot = generatePoints([from.x, from.y], [To.x, To.y])
+    for(let i = 0; i < fTot.length; i++){
+        drawEntities()
+        d.text(ResourceTable[resource], 15, fTot[i][0], fTot[i][1])
+        await sleep(10 * Math.abs(GAME_SPEED))
+    }
+}
+export function getCenterPoint(){
+    return {x: canvas.width/2, y: canvas.height/2}
 }

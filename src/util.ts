@@ -30,6 +30,13 @@ export const ResourceTable : {[key: string]: string} = {
   "wool": "🧶",
   "shirt": "👕"
 }
+export const ProfesionToResource : {[key: string]: string} = {
+  "water": "water",
+  "sheep": "sheep",
+  "meat": "🥩",
+  "wool": "🧶",
+  "shirt": "👕"
+}
 export const profesionTable : {[key: string]: string} = {
   "water": "💧",
   "sheep": "🐑",

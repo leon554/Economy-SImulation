@@ -1,6 +1,6 @@
 import { GATHER_AMOUNT, MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "./constants";
 import { drawEntities, drawResourceTransaction, drawTransAction, getCenterPoint } from "./drawingUtil";
-import { days, saleEvent, updateUIEvent } from "./simulation";
+import { days, getResourceData, saleEvent, updateUIEvent } from "./simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason} from "./type";
 import { findWorkerByID, getID, profesionTable, ProfesionToResource, ResourceTable } from "./util";
 
@@ -38,7 +38,7 @@ export class Worker implements Drawable {
         Object.entries(this.resources).map((entry) => {
             if(entry[1].amount > 0){
             
-                resources += `${ResourceTable[entry[0]]}${entry[1].amount}`;
+                resources += `${ResourceTable[entry[0]]}${entry[1].amount} s${entry[1].sellPrice}`;
             }
         });
         return resources;
@@ -72,6 +72,7 @@ export class Worker implements Drawable {
             this.currentActivity = `Worked +${1}${ResourceTable[ProfesionToResource[this.profesion]]} Total ${i +1}`
             await updateUIEvent.emit()
             drawEntities()
+            getResourceData()
         }
         await updateUIEvent.emit()
         drawEntities()
@@ -101,20 +102,26 @@ export class Worker implements Drawable {
         if(this.resources[resource].amount >= minResourceAmt) return false
         if(this.resources[resource].buyPrice >= this.money) return false 
 
-        while(this.resources[resource].buyPrice < this.money){
+        let NoSupply = false
+
+        while(this.resources[resource].buyPrice < this.money && NoSupply == false){
+            //make event that fires to check if anyone is selleing resource x
+            NoSupply = true
             for (const potentialSeller of people) {
                 if(potentialSeller.id == this.id) continue
 
                 this.currentActivity = `Offer to ${potentialSeller.id} for ${ResourceTable[resource]}`
                 const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
-            
+                
+                if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
                 if(buyOfferSucces.saleSucces){
                     this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
                     this.resources[resource].buyPrice -= this.resources[resource].buyPrice > 1 ? 1 : 0
                     return true
                 }
             }
-            if(this.resources[resource].buyPrice < MAX_BUY_SELL_PRICE){
+            
+            if(this.resources[resource].buyPrice < MAX_BUY_SELL_PRICE ){
                 this.resources[resource].buyPrice++
             }else{
                 break

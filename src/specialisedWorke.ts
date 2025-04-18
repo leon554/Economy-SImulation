@@ -1,6 +1,6 @@
 import { Drawable, ResourceType } from "./type"
 import { Worker } from "./worker"
-import { entities } from "./simulation"
+import { entities, getResourceData } from "./simulation"
 
 
 export class SpecialisedWorker extends Worker implements Drawable{
@@ -27,6 +27,7 @@ export class SpecialisedWorker extends Worker implements Drawable{
             for(let i = 0; i < this.resources[this.inputResource].amount; i++){
                 this.resources[this.outputResource].amount += 1;
                 this.resources[this.inputResource].amount -= 1;
+                getResourceData()
             }
         }
     }

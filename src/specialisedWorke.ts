@@ -2,10 +2,11 @@ import { Drawable, ResourceType } from "./type"
 import { Worker } from "./worker"
 import type { Entity } from "./type"
 import { calculateResourceData } from "./log"
+import { EntityType } from "./util"
 
 
 export class SpecialisedWorker extends Worker implements Drawable{
-    type = "specialisedWorker"
+    type = EntityType.specialisedWorker
     inputResource: string
     outputResource: string
 

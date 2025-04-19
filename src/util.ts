@@ -1,5 +1,6 @@
+import type { SpecialisedWorker } from "./specialisedWorke"
 import { ResourceType } from "./type"
-import { Worker } from "./worker"
+import type { Worker } from "./worker"
 
 let workerID = 0
 export function getID(){
@@ -17,7 +18,7 @@ export function shuffleArray<T>(array: T[]): T[] {
     return shuffled;
 }
 
-export function findWorkerByID(workers: Worker[], id: number){
+export function findWorkerByID(workers: (Worker|SpecialisedWorker)[], id: number){
   const worker =  workers.find(w => w.id == id)
   if(worker == undefined) throw new Error("ID given should exist at all times")
   return worker
@@ -50,7 +51,11 @@ export const profesionIcon : {[key: string]: string} = {
   "bank": "🏦",
   "butcher": "🙋"
 }
-
+export enum EntityType {
+  worker,
+  specialisedWorker,
+  bank,
+}
 export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number){
   return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0};
 }

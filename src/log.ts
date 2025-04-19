@@ -4,34 +4,32 @@ import { color } from "./draw/Color"
 import { addDrawEvent } from "./drawingUtil"
 import type { Worker } from "./worker"
 import type { SpecialisedWorker } from "./specialisedWorke"
-import { ResourceTable } from "./util"
+import { EntityType, ResourceTable } from "./util"
 import type { Entity } from "./type"
 
-console.log("Log initialized")
+
 let resourcePriceString = ""
 let resourcePriceMaxString = ""
 let resourcePriceMinString = ""
 let resourceAmountString = ""
 export let resourcePrices : { [key: string]: {avgSellPrice: number, avgBuyPrice: number}} = {}
 
-export function initializeLog(){
-    console.log("Log initialized 2")
-    addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-    addDrawEvent(() => {d.text("Max: " + resourcePriceMaxString,12,10,100, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-    addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-    addDrawEvent(() => {d.text(resourceAmountString,12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-}
+
+addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+addDrawEvent(() => {d.text("Max: " + resourcePriceMaxString,12,10,100, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+addDrawEvent(() => {d.text(resourceAmountString,12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+
 
 
 export function calculateResourceData(entities: Entity[]){
-    console.log("Calculating resource data")
     resourcePriceString = ""
     resourcePriceMinString = ""
     resourcePriceMaxString = ""
     resourceAmountString = ""
     const resourceDict: { [key: string]: {sellPriceSum: number, buyPriceSum: number, frequency: number, amount: number, maxPrice: number, minPrice:number}} = {}
     
-    entities.filter(e => e.type === "worker" || e.type === "specialisedWorker").forEach(e => {
+    entities.filter(e => e.type === EntityType.worker || e.type === EntityType.specialisedWorker).forEach(e => {
         const workers = e as Worker | SpecialisedWorker
         Object.entries(workers.resources).forEach(r => {
             if(resourceDict[r[0]] == null){

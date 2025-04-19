@@ -9,13 +9,12 @@ import { Event } from "./event";
 import { Entity, SaleType } from "./type";
 import { SpecialisedWorker } from "./specialisedWorke";
 import { GAME_SPEED } from "./constants";
-import { calculateResourceData, initializeLog } from "./log";
+import { calculateResourceData } from "./log";
 
 export let days = 0;
 let currentSimulationStep = ""
 let totalMoney = 0
 
-initializeLog()
 addDrawEvent(() => {d.text(`Day: ${days}, Step: ${currentSimulationStep}`,22,10,25,HorizontalAllign.start,undefined,new color(255, 255, 255));});
 addDrawEvent(() => {d.text(`Money In Circulation: $${Math.round(totalMoney)}, Game Speed: ${20 -Math.abs(GAME_SPEED)}x`,12,10,50, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 
@@ -33,6 +32,7 @@ entities.push(new Worker(40, CreateResources(["water", "meat"], [5,5]), "sheep")
 entities.push(new Bank(10000))
 setEntitiesPos(entities);
 
+//make it so theres more interfaces 
 //fix money supply
 //show current resource supply
 export async function Loop() {
@@ -74,7 +74,7 @@ async function handleTransactions(){
         for (const e of entities) {
             if(e instanceof Bank) continue
             //make the stament below so that it only takes one arr
-            const buyStatus = await e.makeBuyOffers(entities.filter(e => e instanceof Worker), entities);
+            const buyStatus = await e.makeBuyOffers(entities);
             if (buyStatus) buyDemand = true;
         }
     }

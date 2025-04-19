@@ -6,6 +6,7 @@ import { profesionIcon, ResourceTable } from "./util";
 
 import { HorizontalAllign } from "./draw/Draw";
 import { GAME_SPEED } from "./constants";
+import type { SpecialisedWorker } from "./specialisedWorke";
 
 export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
     const points: { x: number, y: number }[] = [];
@@ -37,7 +38,6 @@ export function drawEntities(entities: Drawable[]){
         d.text(upperLowerData[2], 11, e.position.x, e.position.y + 32, HorizontalAllign.centre, undefined, new color(255,255,255))
     })
     drawEvents.forEach(e => e())
-    console.log("ui updated")
 }
 export function setEntitiesPos(entities: Drawable[]){
     const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
@@ -56,7 +56,7 @@ function generatePoints(start: number[], end: number[]) {
 }
 export const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
 
-export async function drawTransAction(buyer: Worker, seller: Worker, resource: string, entities: Entity[]){
+export async function drawTransAction(buyer: Worker|SpecialisedWorker, seller: Worker, resource: string, entities: Entity[]){
     const sToB = generatePoints([seller.position.x, seller.position.y], [buyer.position.x, buyer.position.y])
     const bTos = generatePoints( [buyer.position.x, buyer.position.y], [seller.position.x, seller.position.y])
     

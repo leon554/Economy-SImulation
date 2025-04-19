@@ -2,11 +2,12 @@ import { GATHER_AMOUNT, MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } f
 import { drawEntities, drawResourceTransaction, drawTransAction, getCenterPoint } from "./drawingUtil";
 import { calculateResourceData } from "./log";
 import { days, saleEvent, updateUIEvent } from "./simulation";
+import type { SpecialisedWorker } from "./specialisedWorke";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, Entity} from "./type";
-import { findWorkerByID, getID, profesionTable, ProfesionToResource, ResourceTable } from "./util";
+import { findWorkerByID, getID, profesionTable, ProfesionToResource, ResourceTable, EntityType } from "./util";
 
 export class Worker implements Drawable {
-    type = "worker"
+    type = EntityType.worker
     resources: ResourceType;
     id: number;
     money: number;
@@ -90,7 +91,8 @@ export class Worker implements Drawable {
             return true
         }
     }
-    public async makeBuyOffers(people: Worker[], entities: Entity[]){
+    public async makeBuyOffers(entities: Entity[]){
+        const people = entities.filter(e => e.type === EntityType.worker || e.type == EntityType.specialisedWorker) as (Worker|SpecialisedWorker)[]
         this.checkAndCreateResources()
         const hasBoughtArr: boolean[] = []
 
@@ -100,7 +102,7 @@ export class Worker implements Drawable {
 
         return hasBoughtArr.includes(true)
     }
-    protected async MakeBuyOffer(people: Worker[], resource: string, minResourceAmt: number, entities: Entity[]){
+    protected async MakeBuyOffer(people: (Worker|SpecialisedWorker)[], resource: string, minResourceAmt: number, entities: Entity[]){
         if(this.resources[resource].amount >= minResourceAmt) return false
         if(this.resources[resource].buyPrice >= this.money) return false 
 
@@ -132,7 +134,7 @@ export class Worker implements Drawable {
         return false
     }
 
-    public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: Worker[], entities: Entity[]): Promise<SellerReturnType>{
+    public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: (Worker|SpecialisedWorker)[], entities: Entity[]): Promise<SellerReturnType>{
         const resourceReserveAmount = 6
         this.checkAndCreateResources()
 

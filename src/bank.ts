@@ -2,12 +2,13 @@ import { MIN_VITAL_RESOURCE_AMT, TAX_RATE, WELLFARE_MULTIPLIER } from "./constan
 import { drawMoneyTransaction} from "./drawingUtil";
 import { saleEvent, updateUIEvent } from "./simulation";
 import { Position, Drawable, SaleType, Entity} from "./type";
-import { getID, } from "./util";
-import { Worker } from "./worker";
+import { EntityType, getID, } from "./util";
+import type { Worker } from "./worker";
 import { resourcePrices } from "./log";
+import type { SpecialisedWorker } from "./specialisedWorke";
 
 export class Bank implements Drawable {
-    type = "bank"
+    type = EntityType.bank
     id: number;
     money: number;
     position: Position = { x: 0, y: 0 };
@@ -29,7 +30,8 @@ export class Bank implements Drawable {
         this.data = `$${Math.round(this.money)}`;
     }
     public async work(entities: Entity[]) {
-        const workers = entities.filter(e => e instanceof Worker)
+        const workers = entities.filter(e => e.type === EntityType.worker || e.type === EntityType.specialisedWorker) as (Worker | SpecialisedWorker)[]
+
         //add event to update ui
         for(const e of workers){
             const sheepAmt = e.resources["meat"].amount
@@ -45,7 +47,7 @@ export class Bank implements Drawable {
         }
 
     }
-    private async payWelfare(resource: string, worker: Worker, entities: Entity[]){
+    private async payWelfare(resource: string, worker: Worker| SpecialisedWorker, entities: Entity[]){
         const wellFareAmt = (resourcePrices[resource] != null) ? resourcePrices[resource].avgSellPrice : 10
         if(this.money < wellFareAmt * WELLFARE_MULTIPLIER) return
         this.money -= wellFareAmt * WELLFARE_MULTIPLIER

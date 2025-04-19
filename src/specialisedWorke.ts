@@ -1,9 +1,11 @@
 import { Drawable, ResourceType } from "./type"
 import { Worker } from "./worker"
-import { entities, getResourceData } from "./simulation"
+import type { Entity } from "./type"
+import { calculateResourceData } from "./log"
 
 
 export class SpecialisedWorker extends Worker implements Drawable{
+    type = "specialisedWorker"
     inputResource: string
     outputResource: string
 
@@ -14,12 +16,12 @@ export class SpecialisedWorker extends Worker implements Drawable{
     }
     //make it so worker sells for higer than buy
     //make it so worker doesnt by all the supply
-    override async work(){
+    override async work(entities: Entity[]){
         this.checkAndCreateResources()
         let supplyLeft = true
         let boughtAmt = 0
         while(supplyLeft && boughtAmt < 10 && this.resources[this.outputResource].amount < 20){
-            supplyLeft = await this.MakeBuyOffer(entities.filter(e => e instanceof Worker), this.inputResource, Number.MAX_VALUE)
+            supplyLeft = await this.MakeBuyOffer(entities.filter(e => e instanceof Worker), this.inputResource, Number.MAX_VALUE, entities)
             boughtAmt++
         }
 
@@ -27,7 +29,7 @@ export class SpecialisedWorker extends Worker implements Drawable{
             for(let i = 0; i < this.resources[this.inputResource].amount; i++){
                 this.resources[this.outputResource].amount += 1;
                 this.resources[this.inputResource].amount -= 1;
-                getResourceData()
+                calculateResourceData(entities)
             }
         }
     }

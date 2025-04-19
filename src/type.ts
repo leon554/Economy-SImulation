@@ -1,3 +1,7 @@
+import type { Worker } from "./worker"
+import type { SpecialisedWorker } from "./specialisedWorke"
+import type { Bank } from "./bank"
+
 export interface Position{
     x: number
     y: number
@@ -28,3 +32,4 @@ export interface SaleType{
     amountSold: number
     price: number
 }
+export type Entity = Worker | SpecialisedWorker | Bank

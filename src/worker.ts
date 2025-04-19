@@ -1,10 +1,12 @@
 import { GATHER_AMOUNT, MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "./constants";
 import { drawEntities, drawResourceTransaction, drawTransAction, getCenterPoint } from "./drawingUtil";
-import { days, getResourceData, saleEvent, updateUIEvent } from "./simulation";
-import { Position, ResourceType, Drawable, SellerReturnType, DenyReason} from "./type";
+import { calculateResourceData } from "./log";
+import { days, saleEvent, updateUIEvent } from "./simulation";
+import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, Entity} from "./type";
 import { findWorkerByID, getID, profesionTable, ProfesionToResource, ResourceTable } from "./util";
 
 export class Worker implements Drawable {
+    type = "worker"
     resources: ResourceType;
     id: number;
     money: number;
@@ -64,18 +66,18 @@ export class Worker implements Drawable {
             }
         })
     }
-    public async work() {
+    public async work(entities: Entity[]) {
         this.checkAndCreateResource(ProfesionToResource[this.profesion])
         for(let i = 0; i< GATHER_AMOUNT;i++){
-            await drawResourceTransaction(getCenterPoint(), this.position, ProfesionToResource[this.profesion])
+            await drawResourceTransaction(getCenterPoint(), this.position, ProfesionToResource[this.profesion], entities)
             this.resources[ProfesionToResource[this.profesion]].amount += 1;
             this.currentActivity = `Worked +${1}${ResourceTable[ProfesionToResource[this.profesion]]} Total ${i +1}`
             await updateUIEvent.emit()
-            drawEntities()
-            getResourceData()
+            drawEntities(entities)
+            calculateResourceData(entities)
         }
         await updateUIEvent.emit()
-        drawEntities()
+        drawEntities(entities)
     }
     public consumeResources(){
         this.resources["water"].amount -= 1
@@ -88,17 +90,17 @@ export class Worker implements Drawable {
             return true
         }
     }
-    public async makeBuyOffers(people: Worker[]){
+    public async makeBuyOffers(people: Worker[], entities: Entity[]){
         this.checkAndCreateResources()
         const hasBoughtArr: boolean[] = []
 
-        hasBoughtArr.push(await this.MakeBuyOffer(people, "water", MIN_VITAL_RESOURCE_AMT))
+        hasBoughtArr.push(await this.MakeBuyOffer(people, "water", MIN_VITAL_RESOURCE_AMT, entities))
         //hasBoughtArr.push(await  this.MakeBuyOffer(people, "sheep", MIN_VITAL_RESOURCE_AMT))
-        hasBoughtArr.push(await  this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT))
+        hasBoughtArr.push(await  this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT, entities))
 
         return hasBoughtArr.includes(true)
     }
-    protected async MakeBuyOffer(people: Worker[], resource: string, minResourceAmt: number){
+    protected async MakeBuyOffer(people: Worker[], resource: string, minResourceAmt: number, entities: Entity[]){
         if(this.resources[resource].amount >= minResourceAmt) return false
         if(this.resources[resource].buyPrice >= this.money) return false 
 
@@ -111,7 +113,7 @@ export class Worker implements Drawable {
                 if(potentialSeller.id == this.id) continue
 
                 this.currentActivity = `Offer to ${potentialSeller.id} for ${ResourceTable[resource]}`
-                const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
+                const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people, entities)
                 
                 if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
                 if(buyOfferSucces.saleSucces){
@@ -130,7 +132,7 @@ export class Worker implements Drawable {
         return false
     }
 
-    public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: Worker[]): Promise<SellerReturnType>{
+    public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: Worker[], entities: Entity[]): Promise<SellerReturnType>{
         const resourceReserveAmount = 6
         this.checkAndCreateResources()
 
@@ -146,14 +148,14 @@ export class Worker implements Drawable {
 
         await updateUIEvent.emit()
         
-        await drawTransAction(buyer, seller, resource)
+        await drawTransAction(buyer, seller, resource, entities)
 
         seller.money += (price * (1-TAX_RATE))
         buyer.resources[resource].amount++
 
         await updateUIEvent.emit()
 
-        await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price})
+        await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price}, entities)
 
         await updateUIEvent.emit()
 

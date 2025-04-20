@@ -2,10 +2,8 @@ import { d } from "./main"
 import { HorizontalAllign } from "./draw/Draw"
 import { color } from "./draw/Color"
 import { addDrawEvent } from "./drawingUtil"
-import type { Worker } from "./worker"
-import type { SpecialisedWorker } from "./specialisedWorke"
-import { EntityType, ResourceTable } from "./util"
-import type { Entity } from "./type"
+import {  ResourceTable } from "./util"
+import { baseWorker } from "./baseWorker"
 
 
 let resourcePriceString = ""
@@ -22,16 +20,15 @@ addDrawEvent(() => {d.text(resourceAmountString,12,10,150, HorizontalAllign.star
 
 
 
-export function calculateResourceData(entities: Entity[]){
+export function calculateResourceData(entities: baseWorker[]){
     resourcePriceString = ""
     resourcePriceMinString = ""
     resourcePriceMaxString = ""
     resourceAmountString = ""
     const resourceDict: { [key: string]: {sellPriceSum: number, buyPriceSum: number, frequency: number, amount: number, maxPrice: number, minPrice:number}} = {}
     
-    entities.filter(e => e.type === EntityType.worker || e.type === EntityType.specialisedWorker).forEach(e => {
-        const workers = e as Worker | SpecialisedWorker
-        Object.entries(workers.resources).forEach(r => {
+    entities.forEach(e => {
+        Object.entries(e.resources).forEach(r => {
             if(resourceDict[r[0]] == null){
                 resourceDict[r[0]] = {sellPriceSum: r[1].sellPrice, buyPriceSum: r[1].buyPrice, frequency: 1, amount: r[1].amount, maxPrice: r[1].sellPrice, minPrice: r[1].sellPrice}
             }else{

@@ -1,6 +1,3 @@
-import type { Worker } from "./worker"
-import type { SpecialisedWorker } from "./specialisedWorke"
-import type { Bank } from "./bank"
 
 export interface Position{
     x: number
@@ -11,12 +8,11 @@ export interface ResourceType{
 }
 export interface ResourceData{ amount: number; sellPrice: number; buyPrice: number } 
 export interface Drawable{
-    data: string
+    drawData: string
     position: Position
     icon: string
     profesion: string
 }
-
 export interface SellerReturnType{
     saleSucces: boolean
     denyReason: DenyReason
@@ -32,4 +28,3 @@ export interface SaleType{
     amountSold: number
     price: number
 }
-export type Entity = Worker | SpecialisedWorker | Bank

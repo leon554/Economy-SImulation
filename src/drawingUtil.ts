@@ -1,12 +1,11 @@
-import { Drawable, Entity, Position } from "./type";
+import { Drawable, Position } from "./type";
 import { canvas, d } from "./main";
 import { color } from "./draw/Color";
-import type { Worker } from "./worker"
 import { profesionIcon, ResourceTable } from "./util";
-
 import { HorizontalAllign } from "./draw/Draw";
 import { GAME_SPEED } from "./constants";
-import type { SpecialisedWorker } from "./specialisedWorke";
+import { baseWorker } from "./baseWorker";
+import { drawUiEvent } from "./simulation";
 
 export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
     const points: { x: number, y: number }[] = [];
@@ -29,7 +28,7 @@ export function drawEntities(entities: Drawable[]){
     d.Clear()
     entities.forEach((e) => {
         const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
-        const upperLowerData = e.data.split("^")
+        const upperLowerData = e.drawData.split("^")
         d.text(upperLowerData[0], 11, e.position.x, e.position.y - 17, HorizontalAllign.centre, undefined, new color(255,255,255))
         d.text(profEmoji, 18, e.position.x, e.position.y, HorizontalAllign.centre, undefined, new color(255,255,100))
         if(upperLowerData.length < 2) return
@@ -56,29 +55,29 @@ function generatePoints(start: number[], end: number[]) {
 }
 export const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
 
-export async function drawTransAction(buyer: Worker|SpecialisedWorker, seller: Worker, resource: string, entities: Entity[]){
+export async function drawTransAction(buyer: baseWorker, seller: baseWorker, resource: string){
     const sToB = generatePoints([seller.position.x, seller.position.y], [buyer.position.x, buyer.position.y])
     const bTos = generatePoints( [buyer.position.x, buyer.position.y], [seller.position.x, seller.position.y])
     
     for(let i = 0; i < sToB.length; i++){
-        drawEntities(entities)
+        drawUiEvent.emit()
         d.text(ResourceTable[resource], 15, sToB[i][0], sToB[i][1])
         d.text("💰", 15, bTos[i][0], bTos[i][1])
         await sleep(10 * Math.abs(GAME_SPEED))
     }
 }
-export async function drawMoneyTransaction(from: Position, To: Position, entities: Entity[]){
+export async function drawMoneyTransaction(from: Position, To: Position){
     const fTot = generatePoints([from.x, from.y], [To.x, To.y])
     for(let i = 0; i < fTot.length; i++){
-        drawEntities(entities)
+        drawUiEvent.emit()
         d.text("💰", 15, fTot[i][0], fTot[i][1])
         await sleep(10 * Math.abs(GAME_SPEED))
     }
 }
-export async function drawResourceTransaction(from: Position, To: Position, resource: string, entities: Entity[]){
+export async function drawResourceTransaction(from: Position, To: Position, resource: string){
     const fTot = generatePoints([from.x, from.y], [To.x, To.y])
     for(let i = 0; i < fTot.length; i++){
-        drawEntities(entities)
+        drawUiEvent.emit()
         d.text(ResourceTable[resource], 15, fTot[i][0], fTot[i][1])
         await sleep(10 * Math.abs(GAME_SPEED))
     }

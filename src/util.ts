@@ -55,6 +55,7 @@ export enum EntityType {
   worker,
   specialisedWorker,
   bank,
+  baseWorker
 }
 export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number){
   return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0};

@@ -1,36 +1,19 @@
 import { MIN_VITAL_RESOURCE_AMT, TAX_RATE, WELLFARE_MULTIPLIER } from "../constants";
-import { drawMoneyTransaction} from "../Util/drawingUtil";
+import { drawOneWayTransaction} from "../Util/drawingUtil";
 import { saleEvent, updateUIEvent } from "../simulation";
-import { Position, Drawable, SaleType, EntityType} from "../Util/type";
-import {  getID, } from "../Util/util";
+import { Drawable, SaleType} from "../Util/type";
 import { resourcePrices } from "../Util/log";
 import { baseWorker } from "./baseWorker";
+import { Institution } from "./institution";
 
-export class Bank implements Drawable {
-    type = EntityType.bank
-    id: number;
-    money: number;
-    position: Position = { x: 0, y: 0 };
-    drawData: string;
-    icon: string;
-    profesion= "bank";
-
+export class Bank extends Institution implements Drawable {
 
     constructor(startingMoney: number) {
-        this.money = startingMoney;
-        this.id = getID();
-        this.drawData = "BANK"
-        this.updateDrawData();
-        this.icon = "circle";
+        super(startingMoney, "bank")
         saleEvent.subscribe((saleData, entities: baseWorker[]) => this.handleSaleTax(saleData, entities))
-        updateUIEvent.subscribe(() => this.updateDrawData())
     }
-    private updateDrawData() {
-        this.drawData = `$${Math.round(this.money)}`;
-    }
+
     public async work(entities: baseWorker[]) {
-       
-        //add event to update ui
         for(const e of entities){
             const sheepAmt = e.resources["meat"].amount
             const waterAmt = e.resources["water"].amount
@@ -50,7 +33,7 @@ export class Bank implements Drawable {
         if(this.money < wellFareAmt * WELLFARE_MULTIPLIER) return
         this.money -= wellFareAmt * WELLFARE_MULTIPLIER
         updateUIEvent.emit()
-        await drawMoneyTransaction(this.position, worker.position)
+        await drawOneWayTransaction(this.position, worker.position, "💰")
         worker.money += wellFareAmt * WELLFARE_MULTIPLIER
         updateUIEvent.emit()
     }
@@ -58,13 +41,11 @@ export class Bank implements Drawable {
         const sellerPos = entities.find(e => saleData.sellerID == e.id)!.position
         const bankPos = this.position
 
-        await drawMoneyTransaction(sellerPos, bankPos)
+        await drawOneWayTransaction(sellerPos, bankPos, "💰")
 
         this.money += (saleData.price * TAX_RATE)
 
         updateUIEvent.emit()
 
-    }
-
-    
+    }  
 }

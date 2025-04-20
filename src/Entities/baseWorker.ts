@@ -1,5 +1,5 @@
 import { MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "../constants";
-import { drawTransAction} from "../Util/drawingUtil";
+import {drawTransaction} from "../Util/drawingUtil";
 import { days, saleEvent, updateUIEvent } from "../simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, EntityType} from "../Util/type";
 import { findWorkerByID, getID, profesionTable, ResourceTable } from "../Util/util";
@@ -12,7 +12,6 @@ export abstract class baseWorker implements Drawable{
     money: number;
     position: Position = { x: 0, y: 0 };
     drawData: string;
-    icon: string;
     profesion: string;
     currentActivity: string = "idle"
 
@@ -23,7 +22,6 @@ export abstract class baseWorker implements Drawable{
         this.profesion = profesion;
         this.drawData = ""
         this.updateDrawData();
-        this.icon = "circle";
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     protected updateDrawData() {
@@ -47,11 +45,6 @@ export abstract class baseWorker implements Drawable{
         console.log(
             `------Worker-ID: ${this.id}------\nMoney: ${this.money}\nResources-----------------\n${resources}--------------------------`
         );
-    }
-    protected checkAndCreateResource(resourceName: string){
-        if(this.resources[resourceName] == null){
-            this.resources[resourceName]  = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}
-        }
     }
     protected checkAndCreateResources(){
         Object.keys(ResourceTable).forEach(resource => {
@@ -80,8 +73,7 @@ export abstract class baseWorker implements Drawable{
         const hasBoughtArr: boolean[] = []
 
         hasBoughtArr.push(await this.MakeBuyOffer(people, "water", MIN_VITAL_RESOURCE_AMT))
-        //hasBoughtArr.push(await  this.MakeBuyOffer(people, "sheep", MIN_VITAL_RESOURCE_AMT))
-        hasBoughtArr.push(await  this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT))
+        hasBoughtArr.push(await this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT))
 
         return hasBoughtArr.includes(true)
     }
@@ -110,9 +102,7 @@ export abstract class baseWorker implements Drawable{
             
             if(this.resources[resource].buyPrice < MAX_BUY_SELL_PRICE ){
                 this.resources[resource].buyPrice++
-            }else{
-                break
-            }
+            }else break
         }
         return false
     }
@@ -133,7 +123,7 @@ export abstract class baseWorker implements Drawable{
 
         await updateUIEvent.emit()
         
-        await drawTransAction(buyer, seller, resource)
+        await drawTransaction(buyer, seller, resource)
 
         seller.money += (price * (1-TAX_RATE))
         buyer.resources[resource].amount++

@@ -13,7 +13,6 @@ export interface ResourceData{ amount: number; sellPrice: number; buyPrice: numb
 export interface Drawable{
     drawData: string
     position: Position
-    icon: string
     profesion: string
 }
 export interface SellerReturnType{
@@ -36,6 +35,7 @@ export enum EntityType {
     specialisedWorker="specialisedWorker",
     bank="bank",
     baseWorker="baseWorker",
+    institution="institution",
 }
 export interface entitiesInCategoriesType{
     unSkilledWorkers: unSkilledWorker[]

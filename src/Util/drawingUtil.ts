@@ -7,19 +7,7 @@ import { GAME_SPEED } from "../constants";
 import { baseWorker } from "../Entities/baseWorker";
 import { drawUiEvent } from "../simulation";
 
-export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
-    const points: { x: number, y: number }[] = [];
-    const angleIncrement = (2 * Math.PI) / amount;
-  
-    for (let i = 0; i < amount; i++) {
-        const angle = i * angleIncrement;
-        const pointX = x + radius * Math.cos(angle);
-        const pointY = y + radius * Math.sin(angle);
-        points.push({ x: pointX, y: pointY });
-    }
-  
-    return points;
-}
+
 export const drawEvents: Function[] = []
 export function addDrawEvent(func: Function){
     drawEvents.push(func)
@@ -38,12 +26,14 @@ export function drawEntities(entities: Drawable[]){
     })
     drawEvents.forEach(e => e())
 }
+
 export function setEntitiesPos(entities: Drawable[]){
     const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
     entities.forEach((e, i) => {
         e.position = {x: points[i].x, y: points[i].y}  
     })
 }
+
 function generatePoints(start: number[], end: number[]) {
     const points = [];
     const stepX = (end[0] - start[0]) / 49; // Divide by 19 because we want 20 points, including start and end
@@ -53,9 +43,24 @@ function generatePoints(start: number[], end: number[]) {
     }
     return points;
 }
+
+export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
+    const points: { x: number, y: number }[] = [];
+    const angleIncrement = (2 * Math.PI) / amount;
+  
+    for (let i = 0; i < amount; i++) {
+        const angle = i * angleIncrement;
+        const pointX = x + radius * Math.cos(angle);
+        const pointY = y + radius * Math.sin(angle);
+        points.push({ x: pointX, y: pointY });
+    }
+  
+    return points;
+}
+
 export const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
 
-export async function drawTransAction(buyer: baseWorker, seller: baseWorker, resource: string){
+export async function drawTransaction(buyer: baseWorker, seller: baseWorker, resource: string){
     const sToB = generatePoints([seller.position.x, seller.position.y], [buyer.position.x, buyer.position.y])
     const bTos = generatePoints( [buyer.position.x, buyer.position.y], [seller.position.x, seller.position.y])
     
@@ -66,22 +71,16 @@ export async function drawTransAction(buyer: baseWorker, seller: baseWorker, res
         await sleep(10 * Math.abs(GAME_SPEED))
     }
 }
-export async function drawMoneyTransaction(from: Position, To: Position){
+
+export async function drawOneWayTransaction(from: Position, To: Position, drawString: string){
     const fTot = generatePoints([from.x, from.y], [To.x, To.y])
     for(let i = 0; i < fTot.length; i++){
         drawUiEvent.emit()
-        d.text("💰", 15, fTot[i][0], fTot[i][1])
+        d.text(drawString, 15, fTot[i][0], fTot[i][1])
         await sleep(10 * Math.abs(GAME_SPEED))
     }
 }
-export async function drawResourceTransaction(from: Position, To: Position, resource: string){
-    const fTot = generatePoints([from.x, from.y], [To.x, To.y])
-    for(let i = 0; i < fTot.length; i++){
-        drawUiEvent.emit()
-        d.text(ResourceTable[resource], 15, fTot[i][0], fTot[i][1])
-        await sleep(10 * Math.abs(GAME_SPEED))
-    }
-}
+
 export function getCenterPoint(){
     return {x: canvas.width/2, y: canvas.height/2}
 }

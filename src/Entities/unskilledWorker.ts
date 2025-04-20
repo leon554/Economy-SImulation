@@ -2,9 +2,9 @@ import { baseWorker } from "./baseWorker";
 import { GATHER_AMOUNT } from "../constants";
 import { drawEntities, drawOneWayTransaction, getCenterPoint } from "../Util/drawingUtil";
 import { calculateResourceData } from "../Util/log";
-import {  drawUiEvent,  updateUIEvent } from "../simulation";
+import {  updateUIEvent } from "../simulation";
 import { ResourceType, EntityType} from "../Util/type";
-
+import { TierManager } from "../Util/tierManager";
 import {ProfesionToResource, ResourceTable } from "../Util/util";
 
 export class unSkilledWorker extends baseWorker{
@@ -12,18 +12,17 @@ export class unSkilledWorker extends baseWorker{
 
     constructor(startingMoney: number, startingResources: ResourceType, profesion: string) {
         super(startingMoney, startingResources, profesion)
+        TierManager.addRecipe([ProfesionToResource[this.profesion]], [])
     }
     
     public async work(entities: baseWorker[]) {
         this.checkAndCreateResources()
-        for(let i = 0; i< GATHER_AMOUNT;i++){
-            await drawOneWayTransaction(getCenterPoint(), this.position, ResourceTable[ProfesionToResource[this.profesion]])
-            this.resources[ProfesionToResource[this.profesion]].amount += 1;
-            this.currentActivity = `Worked +${1}${ResourceTable[ProfesionToResource[this.profesion]]} Total ${i +1}`
-            await updateUIEvent.emit()
-            drawUiEvent.emit()
-            calculateResourceData(entities)
-        }
+      
+        await drawOneWayTransaction(getCenterPoint(), this.position, ResourceTable[ProfesionToResource[this.profesion]])
+        this.resources[ProfesionToResource[this.profesion]].amount += GATHER_AMOUNT;
+        this.currentActivity = `Worked +${GATHER_AMOUNT}${ResourceTable[ProfesionToResource[this.profesion]]}`
+        calculateResourceData(entities)
+        
         await updateUIEvent.emit()
         drawEntities(entities)
     }

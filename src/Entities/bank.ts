@@ -1,12 +1,13 @@
 import { MIN_VITAL_RESOURCE_AMT, TAX_RATE, WELLFARE_MULTIPLIER } from "../constants";
 import { drawOneWayTransaction} from "../Util/drawingUtil";
 import { saleEvent, updateUIEvent } from "../simulation";
-import { Drawable, SaleType} from "../Util/type";
+import { Drawable, SaleType, EntityType} from "../Util/type";
 import { resourcePrices } from "../Util/log";
 import { baseWorker } from "./baseWorker";
 import { Institution } from "./institution";
 
 export class Bank extends Institution implements Drawable {
+    type = EntityType.bank
 
     constructor(startingMoney: number) {
         super(startingMoney, "bank")
@@ -15,11 +16,11 @@ export class Bank extends Institution implements Drawable {
 
     public async work(entities: baseWorker[]) {
         for(const e of entities){
-            const sheepAmt = e.resources["meat"].amount
+            const meatAmt = e.resources["meat"].amount
             const waterAmt = e.resources["water"].amount
             const minResourceAmt = (MIN_VITAL_RESOURCE_AMT - 2 > 0) ? MIN_VITAL_RESOURCE_AMT - 2 : MIN_VITAL_RESOURCE_AMT
 
-            if(sheepAmt < minResourceAmt){
+            if(meatAmt < minResourceAmt){
                 await this.payWelfare("meat", e)
             }
             if(waterAmt < minResourceAmt){
@@ -30,11 +31,13 @@ export class Bank extends Institution implements Drawable {
     }
     private async payWelfare(resource: string, worker: baseWorker){
         const wellFareAmt = (resourcePrices[resource] != null) ? resourcePrices[resource].avgSellPrice : 10
+        
         if(this.money < wellFareAmt * WELLFARE_MULTIPLIER) return
         this.money -= wellFareAmt * WELLFARE_MULTIPLIER
         updateUIEvent.emit()
         await drawOneWayTransaction(this.position, worker.position, "💰")
         worker.money += wellFareAmt * WELLFARE_MULTIPLIER
+        this.currentActivity = `Paid ${worker.id} $${wellFareAmt * WELLFARE_MULTIPLIER}`
         updateUIEvent.emit()
     }
     async handleSaleTax(saleData: SaleType, entities: baseWorker[]) {
@@ -44,8 +47,7 @@ export class Bank extends Institution implements Drawable {
         await drawOneWayTransaction(sellerPos, bankPos, "💰")
 
         this.money += (saleData.price * TAX_RATE)
-
+        this.currentActivity = `Recieved $${Math.round(saleData.price * TAX_RATE)} from ${saleData.sellerID}`
         updateUIEvent.emit()
-
     }  
 }

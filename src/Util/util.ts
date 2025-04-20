@@ -35,6 +35,7 @@ export const ResourceTable : {[key: string]: string} = {
   "wool": "🧶",
   "shirt": "👕"
 }
+
 export const ProfesionToResource : {[key: string]: string} = {
   "water": "water",
   "sheep": "sheep",
@@ -56,13 +57,13 @@ export const profesionIcon : {[key: string]: string} = {
   "butcher": "🙋"
 }
 
-export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number){
-  return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0};
+export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number, tier: number){
+  return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0, tier};
 }
-export function CreateResources(resources: string[], amounts: number[], buyPrice: number = 10, sellPrice: number = 10){
+export function CreateResources(resources: string[], amounts: number[], tiers: number[], buyPrice: number = 10, sellPrice: number = 10){
   let resourcesObj: ResourceType = {}
   resources.forEach((r, i) => {
-    resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice)
+    resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice, (tiers.length > 0)? tiers[i]: 1)
   })
   return resourcesObj
 }

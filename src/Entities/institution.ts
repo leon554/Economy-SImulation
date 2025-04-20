@@ -10,6 +10,7 @@ export abstract class Institution implements Drawable {
     position: Position = { x: 0, y: 0 };
     drawData: string;
     profesion: string;
+    currentActivity: string = "idle"
 
     constructor(startingMoney: number, profesion: string) {
         this.money = startingMoney;
@@ -20,7 +21,7 @@ export abstract class Institution implements Drawable {
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     private updateDrawData() {
-        this.drawData = `$${Math.round(this.money)}`;
+        this.drawData = `$${Math.round(this.money)}^${this.currentActivity}`;
     }
     abstract work(entities: baseWorker[]): Promise<void>;
 }

@@ -12,6 +12,7 @@ import { GAME_SPEED } from "./constants";
 import { calculateResourceData } from "./Util/log";
 import { baseWorker } from "./Entities/baseWorker";
 import { unSkilledWorker } from "./Entities/unskilledWorker";
+import { TierManager } from "./Util/tierManager";
 
 export let days = 0;
 let currentSimulationStep = ""
@@ -30,19 +31,25 @@ export const updateUIEvent = new Event<() => void>()
 export const drawUiEvent = new Event<() => void>()
 drawUiEvent.subscribe(() => drawEntities(entities))
 
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5]) , "water"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5]), "sheep"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5]), "sheep"));
-workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5]), "butcher", "sheep", "meat"));
-//workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5]), "skinner", "sheep", "wool"));
-//workers.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [5,5]), "shirt", "wool", "shirt"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5]), "sheep"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []) , "water"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "butcher", "sheep", "meat"));
+workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "skinner", "sheep", "wool"));
+workers.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [5,5], []), "shirt", "wool", "shirt"));
+workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 institutions.push(new Bank(10000))
 
 entities.push(...workers, ...institutions)
 CategoriseEntities(workers, institutions, entitiesInCategories)
 console.log(entitiesInCategories)
 setEntitiesPos(entities); 
+
+TierManager.calculateTiers()
+console.log(TierManager.recipes)
+console.log(TierManager.resourceTiers)
 
 
 export async function Loop() {
@@ -86,6 +93,7 @@ async function handleWork(){
     }
 }
 function consumeResourcesAndDelDead(){
+    //del not working
     currentSimulationStep = "Consuming Resources"
     const entitiesIDToDel: number[] = []
     workers.forEach((e) => {
@@ -93,4 +101,8 @@ function consumeResourcesAndDelDead(){
         if(!alive) entitiesIDToDel.push(e.id)
     });
     workers = workers.filter(e => !entitiesIDToDel.includes(e.id))
+    entities = entities.filter(e => !entitiesIDToDel.includes(e.id))
+    if(entitiesIDToDel.length > 0){
+       CategoriseEntities(workers, institutions, entitiesInCategories)
+    }
 }

@@ -5,6 +5,7 @@ import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, EntityT
 import { findWorkerByID, getID, profesionTable, ResourceTable } from "../Util/util";
 
 
+
 export abstract class baseWorker implements Drawable{
     type = EntityType.baseWorker
     resources: ResourceType;
@@ -32,7 +33,7 @@ export abstract class baseWorker implements Drawable{
         let resources: string = "";
         Object.entries(this.resources).map((entry) => {
             if(entry[1].amount > 0){
-                resources += `${ResourceTable[entry[0]]}${entry[1].amount} s${entry[1].sellPrice}`;
+                resources += `${ResourceTable[entry[0]]}${entry[1].amount}`;
             }
         });
         return resources;
@@ -49,7 +50,7 @@ export abstract class baseWorker implements Drawable{
     protected checkAndCreateResources(){
         Object.keys(ResourceTable).forEach(resource => {
             if(this.resources[resource] == null){
-                this.resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0}
+                this.resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1}
             }
         })
     }

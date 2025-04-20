@@ -7,10 +7,11 @@ export interface Position{
     y: number
 }
 export interface ResourceType{
-    [key: string]: {amount: number, sellPrice: number, buyPrice: number, dayPriceLastUpdated: number}
+    [key: string]: {amount: number, sellPrice: number, buyPrice: number, dayPriceLastUpdated: number, tier: number}
 }
 export interface ResourceData{ amount: number; sellPrice: number; buyPrice: number } 
 export interface Drawable{
+    id: number
     drawData: string
     position: Position
     profesion: string

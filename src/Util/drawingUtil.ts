@@ -1,11 +1,11 @@
 import { Drawable, Position } from "./type";
-import { canvas, d } from "./main";
-import { color } from "./draw/Color";
+import { canvas, d } from "../main";
+import { color } from "../draw/Color";
 import { profesionIcon, ResourceTable } from "./util";
-import { HorizontalAllign } from "./draw/Draw";
-import { GAME_SPEED } from "./constants";
-import { baseWorker } from "./baseWorker";
-import { drawUiEvent } from "./simulation";
+import { HorizontalAllign } from "../draw/Draw";
+import { GAME_SPEED } from "../constants";
+import { baseWorker } from "../Entities/baseWorker";
+import { drawUiEvent } from "../simulation";
 
 export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
     const points: { x: number, y: number }[] = [];

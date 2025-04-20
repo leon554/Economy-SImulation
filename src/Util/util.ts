@@ -1,6 +1,10 @@
-import type { SpecialisedWorker } from "./specialisedWorke"
+import type { baseWorker } from "../Entities/baseWorker"
+import type { Bank } from "../Entities/bank"
+import type { entitiesInCategoriesType } from "./type"
+import { EntityType } from "./type"
 import { ResourceType } from "./type"
-import type { Worker } from "./worker"
+import type { unSkilledWorker } from "../Entities/unskilledWorker"
+import type { SpecialisedWorker } from "../Entities/specialisedWorke"
 
 let workerID = 0
 export function getID(){
@@ -18,7 +22,7 @@ export function shuffleArray<T>(array: T[]): T[] {
     return shuffled;
 }
 
-export function findWorkerByID(workers: (Worker|SpecialisedWorker)[], id: number){
+export function findWorkerByID(workers: baseWorker[], id: number){
   const worker =  workers.find(w => w.id == id)
   if(worker == undefined) throw new Error("ID given should exist at all times")
   return worker
@@ -51,12 +55,7 @@ export const profesionIcon : {[key: string]: string} = {
   "bank": "🏦",
   "butcher": "🙋"
 }
-export enum EntityType {
-  worker,
-  specialisedWorker,
-  bank,
-  baseWorker
-}
+
 export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number){
   return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0};
 }
@@ -66,4 +65,9 @@ export function CreateResources(resources: string[], amounts: number[], buyPrice
     resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice)
   })
   return resourcesObj
+}
+export function CategoriseEntities(workers: baseWorker[], institutions: Bank[], entitiesInCategories: entitiesInCategoriesType){
+  entitiesInCategories.unSkilledWorkers = workers.filter(e => e.type == EntityType.unSkilledWorker) as unSkilledWorker[]
+  entitiesInCategories.specialisedWorkers = workers.filter(e => e.type == EntityType.specialisedWorker) as SpecialisedWorker[]
+  entitiesInCategories.banks = institutions.filter(e => e.type == EntityType.bank) as Bank[]
 }

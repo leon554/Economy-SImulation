@@ -1,14 +1,14 @@
 import { baseWorker } from "./baseWorker";
-import { GATHER_AMOUNT } from "./constants";
-import { drawEntities, drawResourceTransaction, getCenterPoint } from "./drawingUtil";
-import { calculateResourceData } from "./log";
-import {  drawUiEvent,  updateUIEvent } from "./simulation";
-import { ResourceType} from "./type";
+import { GATHER_AMOUNT } from "../constants";
+import { drawEntities, drawResourceTransaction, getCenterPoint } from "../Util/drawingUtil";
+import { calculateResourceData } from "../Util/log";
+import {  drawUiEvent,  updateUIEvent } from "../simulation";
+import { ResourceType, EntityType} from "../Util/type";
 
-import {ProfesionToResource, ResourceTable, EntityType } from "./util";
+import {ProfesionToResource, ResourceTable } from "../Util/util";
 
 export class unSkilledWorker extends baseWorker{
-    type = EntityType.worker
+    type = EntityType.unSkilledWorker
 
     constructor(startingMoney: number, startingResources: ResourceType, profesion: string) {
         super(startingMoney, startingResources, profesion)

@@ -1,8 +1,8 @@
-import { MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "./constants";
-import { drawTransAction} from "./drawingUtil";
-import { days, saleEvent, updateUIEvent } from "./simulation";
-import { Position, ResourceType, Drawable, SellerReturnType, DenyReason} from "./type";
-import { findWorkerByID, getID, profesionTable, ResourceTable, EntityType } from "./util";
+import { MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "../constants";
+import { drawTransAction} from "../Util/drawingUtil";
+import { days, saleEvent, updateUIEvent } from "../simulation";
+import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, EntityType} from "../Util/type";
+import { findWorkerByID, getID, profesionTable, ResourceTable } from "../Util/util";
 
 
 export abstract class baseWorker implements Drawable{

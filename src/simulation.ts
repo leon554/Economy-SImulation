@@ -1,17 +1,17 @@
 
-import { drawEntities, setEntitiesPos, addDrawEvent} from "./drawingUtil";
-import { CreateResources, shuffleArray } from "./util";
+import { drawEntities, setEntitiesPos, addDrawEvent} from "./Util/drawingUtil";
+import { CategoriseEntities, CreateResources, shuffleArray } from "./Util/util";
 import { d } from "./main";
 import { color } from "./draw/Color";
 import { HorizontalAllign } from "./draw/Draw";
-import { Bank } from "./bank";
-import { Event } from "./event";
-import { Drawable, SaleType } from "./type";
-import { SpecialisedWorker } from "./specialisedWorke";
+import { Bank } from "./Entities/bank";
+import { Event } from "./Util/event";
+import { Drawable, SaleType, entitiesInCategoriesType, entitiesInCategoriesIntitial} from "./Util/type";
+import { SpecialisedWorker } from "./Entities/specialisedWorke";
 import { GAME_SPEED } from "./constants";
-import { calculateResourceData } from "./log";
-import { baseWorker } from "./baseWorker";
-import { unSkilledWorker } from "./worker";
+import { calculateResourceData } from "./Util/log";
+import { baseWorker } from "./Entities/baseWorker";
+import { unSkilledWorker } from "./Entities/unskilledWorker";
 
 export let days = 0;
 let currentSimulationStep = ""
@@ -23,6 +23,7 @@ addDrawEvent(() => {d.text(`Money In Circulation: $${Math.round(totalMoney)}, Ga
 let workers: baseWorker[] = [];
 let institutions: Bank[] = [];
 let entities: Drawable[] = [];
+let entitiesInCategories: entitiesInCategoriesType = entitiesInCategoriesIntitial
 
 export const saleEvent = new Event<(saleData: SaleType, entities: baseWorker[]) => void>()
 export const updateUIEvent = new Event<() => void>()
@@ -39,33 +40,52 @@ workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5]), 
 institutions.push(new Bank(10000))
 
 entities.push(...workers, ...institutions)
-setEntitiesPos(entities); //add bank
+CategoriseEntities(workers, institutions, entitiesInCategories)
+console.log(entitiesInCategories)
+setEntitiesPos(entities); 
 
-//make it so theres more interfaces 
-//make interface called Iworker so i dont have to have worker|specialisedWorker
-//fix money supply
-//show current resource supply
+
 export async function Loop() {
-    totalMoney = 0
     drawUiEvent.emit()
 
-    currentSimulationStep = "Working"
-    const specialisedWorkers: SpecialisedWorker[] = []
-    for(const e of workers){
-        if(e instanceof SpecialisedWorker){
-            specialisedWorkers.push(e)
-        }else{
-            await e.work(workers)
+    await handleWork()
+
+    await handleTransactions()
+
+    consumeResourcesAndDelDead()
+
+    workers = shuffleArray(workers);
+    days++;
+}
+
+async function handleTransactions(){
+    currentSimulationStep = "Trading"
+    let buyDemand = true;
+    while (buyDemand) {
+        buyDemand = false;
+        for (const e of workers) {
+            if(e instanceof Bank) continue
+
+            const buyStatus = await e.makeBuyOffers(workers);
+            if (buyStatus) buyDemand = true;
         }
     }
-    for(const sw of specialisedWorkers){
-        await sw.work(workers)
-    }
-    currentSimulationStep = "Trading"
-    await handleTransactions()
     calculateResourceData(workers)
-    //make it so base workers work first
+}
+async function handleWork(){
+    currentSimulationStep = "Working"
 
+    for(const w of entitiesInCategories.unSkilledWorkers){
+        await w.work(workers)    
+    }
+    for(const w of entitiesInCategories.specialisedWorkers){
+        await w.work(workers)
+    }
+    for(const w of entitiesInCategories.banks){
+        await w.work(workers)
+    }
+}
+function consumeResourcesAndDelDead(){
     currentSimulationStep = "Consuming Resources"
     const entitiesIDToDel: number[] = []
     workers.forEach((e) => {
@@ -73,19 +93,4 @@ export async function Loop() {
         if(!alive) entitiesIDToDel.push(e.id)
     });
     workers = workers.filter(e => !entitiesIDToDel.includes(e.id))
-    workers = shuffleArray(workers);
-    days++;
-}
-
-async function handleTransactions(){
-    let buyDemand = true;
-    while (buyDemand) {
-        buyDemand = false;
-        for (const e of workers) {
-            if(e instanceof Bank) continue
-            //make the stament below so that it only takes one arr
-            const buyStatus = await e.makeBuyOffers(workers);
-            if (buyStatus) buyDemand = true;
-        }
-    }
 }

@@ -1,3 +1,6 @@
+import type { Bank } from "../Entities/bank";
+import type { SpecialisedWorker } from "../Entities/specialisedWorke";
+import type { unSkilledWorker } from "../Entities/unskilledWorker";
 
 export interface Position{
     x: number
@@ -27,4 +30,20 @@ export interface SaleType{
     buyerID: number
     amountSold: number
     price: number
+}
+export enum EntityType {
+    unSkilledWorker ="unSkilledWorker",
+    specialisedWorker="specialisedWorker",
+    bank="bank",
+    baseWorker="baseWorker",
+}
+export interface entitiesInCategoriesType{
+    unSkilledWorkers: unSkilledWorker[]
+    specialisedWorkers: SpecialisedWorker[]
+    banks: Bank[]
+}
+export const entitiesInCategoriesIntitial = {
+    unSkilledWorkers: [],
+    specialisedWorkers: [],
+    banks: [],
 }

@@ -1,9 +1,9 @@
-import { d } from "./main"
-import { HorizontalAllign } from "./draw/Draw"
-import { color } from "./draw/Color"
+import { d } from "../main"
+import { HorizontalAllign } from "../draw/Draw"
+import { color } from "../draw/Color"
 import { addDrawEvent } from "./drawingUtil"
 import {  ResourceTable } from "./util"
-import { baseWorker } from "./baseWorker"
+import { baseWorker } from "../Entities/baseWorker"
 
 
 let resourcePriceString = ""

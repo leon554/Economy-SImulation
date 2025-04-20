@@ -1,6 +1,5 @@
-import { Drawable, ResourceType } from "./type"
-import { calculateResourceData } from "./log"
-import { EntityType } from "./util"
+import { Drawable, ResourceType, EntityType} from "../Util/type"
+import { calculateResourceData } from "../Util/log"
 import { baseWorker } from "./baseWorker"
 
 

@@ -1,9 +1,9 @@
-import { MIN_VITAL_RESOURCE_AMT, TAX_RATE, WELLFARE_MULTIPLIER } from "./constants";
-import { drawMoneyTransaction} from "./drawingUtil";
-import { saleEvent, updateUIEvent } from "./simulation";
-import { Position, Drawable, SaleType} from "./type";
-import { EntityType, getID, } from "./util";
-import { resourcePrices } from "./log";
+import { MIN_VITAL_RESOURCE_AMT, TAX_RATE, WELLFARE_MULTIPLIER } from "../constants";
+import { drawMoneyTransaction} from "../Util/drawingUtil";
+import { saleEvent, updateUIEvent } from "../simulation";
+import { Position, Drawable, SaleType, EntityType} from "../Util/type";
+import {  getID, } from "../Util/util";
+import { resourcePrices } from "../Util/log";
 import { baseWorker } from "./baseWorker";
 
 export class Bank implements Drawable {

@@ -32,9 +32,9 @@ export class SpecialisedWorker extends baseWorker implements Drawable{
         if(!this.inputResources.every(inputResource => this.resources[inputResource].amount > 1)) return 
 
         const minInputResourceAmt = Math.min(...this.inputResources.map(inputResource => this.resources[inputResource].amount))
-        if(minInputResourceAmt <= 0) return
+        if(minInputResourceAmt <= 3) return
 
-        for(let i = 0; i < minInputResourceAmt; i++){
+        for(let i = 0; i < minInputResourceAmt - 2; i++){
             this.inputResources.forEach(inputResource => this.resources[inputResource].amount--)
             this.outputResources.forEach(outputResource => this.resources[outputResource].amount++)
 
@@ -47,8 +47,8 @@ export class SpecialisedWorker extends baseWorker implements Drawable{
         let supplyLeft = true
         let boughtAmt = 0
         //make it so it evenly buys resources if theres more than one
-        while(supplyLeft && boughtAmt < 10 && this.resources[resource].amount < 20){
-            supplyLeft = await this.MakeBuyOffer(workers, resource, Number.MAX_VALUE)
+        while(supplyLeft && boughtAmt < 10 && this.resources[resource].amount < 20){ 
+            supplyLeft = await this.MakeBuyOffer(workers, resource)
             boughtAmt++
             updateUIEvent.emit()
         }

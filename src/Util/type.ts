@@ -23,7 +23,8 @@ export interface SellerReturnType{
 export enum DenyReason{
     NotEnoughSupply,
     OfferToLow,
-    None
+    None,
+    Qol ="qol",
 }
 export interface SaleType{
     sellerID: number

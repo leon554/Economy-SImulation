@@ -31,22 +31,22 @@ export const updateUIEvent = new Event<() => void>()
 export const drawUiEvent = new Event<() => void>()
 drawUiEvent.subscribe(() => drawEntities(entities))
 
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []) , "water"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "butcher", ["sheep"], ["meat", "wool"]));
-workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "skinner", ["sheep"], ["wool", "wool"]));
-workers.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [5,5], []), "shirt", ["wool"], ["shirt"]));
-workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []) , "water"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+//workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "butcher", ["sheep"], ["meat", "meat"]));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "skinner", ["sheep"], ["wool", "wool"]));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "shirt", ["wool"], ["shirt"]));
+//workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 institutions.push(new Bank(10000))
 
 entities.push(...workers, ...institutions)
 CategoriseEntities(workers, institutions, entitiesInCategories)
 console.log(entitiesInCategories)
 setEntitiesPos(entities); 
-
+//to do make skiled workerers sell for more than they produce
 TierManager.calculateTiers()
 console.log(TierManager.recipes)
 console.log(TierManager.resourceTiers)

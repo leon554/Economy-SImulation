@@ -26,7 +26,7 @@ export abstract class baseWorker implements Drawable{
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     protected updateDrawData() {
-        this.drawData = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} ^ ${this.getResourcesAsString()} ^ ${this.currentActivity}`;
+        this.drawData = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} QOL: ${Math.round(this.calculateQOL()*100)/100} ^ ${this.getResourcesAsString()} ^ ${this.currentActivity}`;
     }
     protected getResourcesAsString() {
         let resources: string = "";
@@ -71,14 +71,21 @@ export abstract class baseWorker implements Drawable{
     public async makeBuyOffers(people: baseWorker[]){
         this.checkAndCreateResources()
         const hasBoughtArr: boolean[] = []
+        const buyResources =  this.bestBuyResourceForQol()
 
-        hasBoughtArr.push(await this.MakeBuyOffer(people, "water", MIN_VITAL_RESOURCE_AMT))
-        hasBoughtArr.push(await this.MakeBuyOffer(people, "meat", MIN_VITAL_RESOURCE_AMT))
+        for(const buyResource of buyResources){
+            hasBoughtArr.push(await this.MakeBuyOffer(people, buyResource))
+        }
 
+        if(this.resources["water"].amount < MIN_VITAL_RESOURCE_AMT){
+            hasBoughtArr.push(await this.MakeBuyOffer(people, "water"))
+        }
+        if(this.resources["meat"].amount < MIN_VITAL_RESOURCE_AMT){
+            hasBoughtArr.push(await this.MakeBuyOffer(people, "meat"))
+        }
         return hasBoughtArr.includes(true)
     }
-    protected async MakeBuyOffer(people: baseWorker[], resource: string, minResourceAmt: number){
-        if(this.resources[resource].amount >= minResourceAmt) return false
+    protected async MakeBuyOffer(people: baseWorker[], resource: string){
         if(this.resources[resource].buyPrice >= this.money) return false 
 
         let NoSupply = false
@@ -92,6 +99,7 @@ export abstract class baseWorker implements Drawable{
                 this.currentActivity = `Offer to ${potentialSeller.id} for ${ResourceTable[resource]}`
                 const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
                 
+                console.log(`Deny: ${buyOfferSucces.denyReason}`)
                 if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
                 if(buyOfferSucces.saleSucces){
                     this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
@@ -110,8 +118,9 @@ export abstract class baseWorker implements Drawable{
     public async isWillingToSellX(resource: string, price: number, buyerId: number, workers: baseWorker[]): Promise<SellerReturnType>{
         const resourceReserveAmount = 6
         this.checkAndCreateResources()
-
-        if(this.resources[resource].amount < resourceReserveAmount) return {saleSucces: false, denyReason: DenyReason.NotEnoughSupply}
+        console.log(`${buyerId} Wanna Buy ${resource} wann sell ${this.bestSellResourceForQol()} id${this.id}`)
+        if(!this.bestSellResourceForQol().includes(resource)) return {saleSucces: false, denyReason: DenyReason.Qol}
+        //if(this.resources[resource].amount < resourceReserveAmount) return {saleSucces: false, denyReason: DenyReason.NotEnoughSupply}
         
         if(this.shouldReduceSellPrice(price, resource)) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
 
@@ -155,6 +164,61 @@ export abstract class baseWorker implements Drawable{
         if(this.resources[resource].amount > resourceReserveAmount) return 
         
         this.resources[resource].sellPrice += (this.resources[resource].sellPrice < MAX_BUY_SELL_PRICE) ? 1: 0
+    }
+    protected calculateQOL(){
+        let qol = 0
+        Object.values(this.resources).forEach(r => {
+            qol += Math.log((r.amount + 1 <= 0) ? 1 : r.amount + 1)
+        })
+        return qol
+    }
+    protected willIncreaseQOLBuyingX(resource: string){
+        const qolBefore = this.calculateQOL()
+        this.resources[resource].amount++
+        const qolAfter = this.calculateQOL()
+        this.resources[resource].amount--
+        return (qolAfter > qolBefore)
+    }
+    protected bestBuyResourceForQol(){
+        let maxQolIncrease = 0
+        let maxQolResource: string[] = []
+        Object.entries(this.resources).forEach(resource => {
+            const qolBefore = this.calculateQOL()
+            this.resources[resource[0]].amount++
+            const qolAfter = this.calculateQOL()
+            this.resources[resource[0]].amount--
+            const qolDelta = qolAfter - qolBefore
+
+            if(maxQolIncrease < qolDelta){
+                maxQolIncrease = qolDelta
+                maxQolResource = [resource[0]]
+            }else if(maxQolIncrease == qolDelta){
+                maxQolResource.push(resource[0])
+            }
+        })
+        return maxQolResource
+    }
+    protected bestSellResourceForQol(){
+        let minQolDecrease = -Infinity
+        let minQolResource: string[] = []
+        Object.entries(this.resources).forEach(resource => {
+            if(resource[1].amount > 1){
+                const qolBefore = this.calculateQOL()
+                this.resources[resource[0]].amount--
+
+                const qolAfter = this.calculateQOL()
+                this.resources[resource[0]].amount++
+
+                const qolDelta = qolAfter - qolBefore
+                if(minQolDecrease < qolDelta){
+                    minQolDecrease = qolDelta
+                    minQolResource = [resource[0]]
+                }else if(minQolDecrease == qolDelta){
+                    minQolResource.push(resource[0])
+                }
+            }
+        })
+        return minQolResource
     }
 }
 

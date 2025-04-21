@@ -26,7 +26,6 @@ export abstract class baseWorker implements Drawable{
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     protected updateDrawData() {
-        console.log("draw data updated for id" + this.id)
         this.drawData = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} ^ ${this.getResourcesAsString()} ^ ${this.currentActivity}`;
     }
     protected getResourcesAsString() {
@@ -139,7 +138,6 @@ export abstract class baseWorker implements Drawable{
 
 
         this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
-        console.log(`Buyer ${buyer.id} bought ${resource} for ${price} from seller ${seller.id}`)
         return {saleSucces: true, denyReason: DenyReason.None}
     }
 

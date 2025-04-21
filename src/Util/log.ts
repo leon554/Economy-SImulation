@@ -4,6 +4,7 @@ import { color } from "../draw/Color"
 import { addDrawEvent } from "./drawingUtil"
 import {  ResourceTable } from "./util"
 import { baseWorker } from "../Entities/baseWorker"
+import { TierManager } from "./tierManager"
 
 
 let resourcePriceString = ""
@@ -16,9 +17,8 @@ export let resourcePrices : { [key: string]: {avgSellPrice: number, avgBuyPrice:
 addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 addDrawEvent(() => {d.text("Max: " + resourcePriceMaxString,12,10,100, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-addDrawEvent(() => {d.text(resourceAmountString,12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-
-
+addDrawEvent(() => {d.text(TierManager.getTierString(),12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));})
+addDrawEvent(() => {d.text(resourceAmountString,12,10,175, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 
 export function calculateResourceData(entities: baseWorker[]){
     resourcePriceString = ""

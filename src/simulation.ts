@@ -36,9 +36,9 @@ workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], [
 workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "butcher", "sheep", "meat"));
-workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "skinner", "sheep", "wool"));
-workers.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [5,5], []), "shirt", "wool", "shirt"));
+workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "butcher", ["sheep"], ["meat", "wool"]));
+workers.push(new SpecialisedWorker(4000, CreateResources(["water", "meat"], [5,5], []), "skinner", ["sheep"], ["wool", "wool"]));
+workers.push(new SpecialisedWorker(400, CreateResources(["water", "meat"], [5,5], []), "shirt", ["wool"], ["shirt"]));
 workers.push(new unSkilledWorker(40, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 institutions.push(new Bank(10000))
 

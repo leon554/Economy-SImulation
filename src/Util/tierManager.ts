@@ -1,3 +1,4 @@
+import { ResourceTable } from "./util"
 
 interface ResourceRecipeType{
     outputResources: string[]
@@ -8,6 +9,23 @@ export class TierManager {
     static recipes : ResourceRecipeType[] = []
     static resourceTiers: {[key: string]: number} = {}
 
+
+    static addRecipe(outputResources: string[], inputResources: string[]) {
+        for(const recipe of this.recipes){
+            if(this.arraysContainSameValues(recipe.inputResources, inputResources) &&
+               this.arraysContainSameValues(recipe.outputResources, outputResources)){
+                return
+            }
+        }
+        this.recipes.push({ outputResources, inputResources })
+    }
+    static getTierString(){
+        let outputString = "Tiers: "
+        Object.entries(this.resourceTiers).forEach(resourceTier => {
+            outputString += `${ResourceTable[resourceTier[0]]} T${resourceTier[1]} `
+        })
+        return outputString
+    }
     static calculateTiers(){
         let tempRecipes = [...this.recipes]
         const tempResourceTiers: {[key: string]: number} = {}
@@ -56,17 +74,9 @@ export class TierManager {
             return true
         })
     }
-    static addRecipe(outputResources: string[], inputResources: string[]) {
-        for(const recipe of this.recipes){
-            if(this.arraysContainSameValues(recipe.inputResources, inputResources) &&
-               this.arraysContainSameValues(recipe.outputResources, outputResources)){
-                return
-            }
-        }
-        this.recipes.push({ outputResources, inputResources })
-    }
     private static arraysContainSameValues(a: string[], b: string[]): boolean {
         return a.length === b.length &&
                [...a].sort().every((val, i) => val === [...b].sort()[i]);
-      }
+    }
+    
 }

@@ -11,6 +11,7 @@ let resourcePriceString = ""
 let resourcePriceMaxString = ""
 let resourcePriceMinString = ""
 let resourceAmountString = ""
+export let resourceAmountData : {[key: string]: number} = {}
 export let resourcePrices : { [key: string]: {avgSellPrice: number, avgBuyPrice: number}} = {}
 
 
@@ -47,5 +48,6 @@ export function calculateResourceData(entities: baseWorker[]){
         resourcePriceMaxString += `${ResourceTable[r[0]]}: $${r[1].maxPrice}`
         resourcePriceMinString += `${ResourceTable[r[0]]}: $${r[1].minPrice}`
         resourceAmountString += `${ResourceTable[r[0]]}:${r[1].amount} `
+        resourceAmountData[r[0]] = r[1].amount
     })
 }

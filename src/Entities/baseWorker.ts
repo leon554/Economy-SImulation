@@ -3,6 +3,7 @@ import {drawTransaction} from "../Util/drawingUtil";
 import { days, saleEvent, updateUIEvent } from "../simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, EntityType} from "../Util/type";
 import { findWorkerByID, getID, profesionTable, ResourceTable } from "../Util/util";
+import { resourceAmountData } from "../Util/log";
 
 
 
@@ -182,6 +183,7 @@ export abstract class baseWorker implements Drawable{
     protected bestBuyResourceForQol(){
         let maxQolIncrease = 0
         let maxQolResource: string[] = []
+
         Object.entries(this.resources).forEach(resource => {
             const qolBefore = this.calculateQOL()
             this.resources[resource[0]].amount++
@@ -189,7 +191,7 @@ export abstract class baseWorker implements Drawable{
             this.resources[resource[0]].amount--
             const qolDelta = qolAfter - qolBefore
 
-            if(maxQolIncrease < qolDelta){
+            if(maxQolIncrease < qolDelta && resourceAmountData[resource[0]] != 0){
                 maxQolIncrease = qolDelta
                 maxQolResource = [resource[0]]
             }else if(maxQolIncrease == qolDelta){
@@ -222,3 +224,27 @@ export abstract class baseWorker implements Drawable{
     }
 }
 
+/*
+Step one every worker will have their make buyOffers function called
+
+QOL:  
+
+
+Buying steps:
+- make offers for vital resources 
+- 
+
+
+
+a worker should buy vital core resources first after that they can focus on non esential resources
+which will increase their QOL
+when a worker doesnt have money to buy essential resources sell non essential ones or make them sell it to the goverment 
+for half price
+
+A worker is willing to sell a vital resource if they have enough of their own this value can be dynamic
+a worker is willing to sell a non essential resources that they create or when they dont have enough money
+to buy vital resources
+willing to invest if wol of life reaches certain point
+*/
+
+// should make it where workers cant selle the same resource they boguth in the same day

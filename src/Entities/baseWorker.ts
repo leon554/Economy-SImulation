@@ -1,4 +1,4 @@
-import { MAX_BUY_SELL_PRICE, MIN_VITAL_RESOURCE_AMT, TAX_RATE } from "../constants";
+import { MAX_BUY_SELL_PRICE, TAX_RATE } from "../constants";
 import {drawTransaction} from "../Util/drawingUtil";
 import { days, saleEvent, updateUIEvent } from "../simulation";
 import { Position, ResourceType, Drawable, SellerReturnType, DenyReason, EntityType} from "../Util/type";
@@ -50,7 +50,7 @@ export abstract class baseWorker implements Drawable{
     protected checkAndCreateResources(){
         Object.keys(ResourceTable).forEach(resource => {
             if(this.resources[resource] == null){
-                this.resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1}
+                this.resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1, minSellPrice: 0}
             }
         })
     }
@@ -84,7 +84,6 @@ export abstract class baseWorker implements Drawable{
         if(this.resources[resource].buyPrice >= this.money) return false 
 
         let NoSupply = false
-
         while(this.resources[resource].buyPrice < this.money && NoSupply == false){
             //make event that fires to check if anyone is selleing resource x
             NoSupply = true
@@ -94,16 +93,15 @@ export abstract class baseWorker implements Drawable{
                 this.currentActivity = `Offer to ${potentialSeller.id} for ${ResourceTable[resource]}`
                 const buyOfferSucces = await potentialSeller.isWillingToSellX(resource, this.resources[resource].buyPrice, this.id, people)
                 
-                console.log(`Deny: ${buyOfferSucces.denyReason}`)
                 if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
                 if(buyOfferSucces.saleSucces){
-                    this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
+                    //this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
                     this.resources[resource].buyPrice -= this.resources[resource].buyPrice > 1 ? 1 : 0
                     return true
                 }
             }
             
-            if(this.resources[resource].buyPrice < MAX_BUY_SELL_PRICE ){
+            if(this.resources[resource].buyPrice < MAX_BUY_SELL_PRICE && NoSupply == false){
                 this.resources[resource].buyPrice++
             }else break
         }
@@ -115,10 +113,11 @@ export abstract class baseWorker implements Drawable{
 
         this.checkAndCreateResources()
 
-        if(QolManager.bestSellResourceForQol(this.resources) != (resource)) return {saleSucces: false, denyReason: DenyReason.Qol}
+        if(QolManager.bestSellResourceForQol(this.resources) != (resource)) return {saleSucces: false, denyReason: DenyReason.NotEnoughSupply}
         
         if(this.shouldReduceSellPrice(price, resource)) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
 
+        if(price <  this.resources[resource].minSellPrice) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
         const buyer = findWorkerByID(workers, buyerId)
         const seller = this
 
@@ -141,12 +140,12 @@ export abstract class baseWorker implements Drawable{
        this.increaseSellPriceIfSoldOut(resource, resourceReserveAmount)
 
 
-        this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
+        //this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
         return {saleSucces: true, denyReason: DenyReason.None}
     }
 
     protected shouldReduceSellPrice(offerPrice: number, resource: string){
-        if(offerPrice > this.resources[resource].sellPrice ) return false
+        if(offerPrice > this.resources[resource].sellPrice) return false
 
         if(this.resources[resource].dayPriceLastUpdated < days){
             this.resources[resource].sellPrice -= this.resources[resource].sellPrice > 1 ? 1 : 0

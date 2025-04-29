@@ -11,7 +11,7 @@ export class Bank extends Institution implements Drawable {
 
     constructor(startingMoney: number) {
         super(startingMoney, "bank")
-        saleEvent.subscribe((saleData, entities: baseWorker[]) => this.handleSaleTax(saleData, entities))
+        saleEvent.subscribe((saleData: SaleType, entities: baseWorker[]) => this.handleSaleTax(saleData, entities))
     }
 
     public async work(entities: baseWorker[]) {

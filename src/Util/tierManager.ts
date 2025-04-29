@@ -32,18 +32,19 @@ export class TierManager {
         
         tempRecipes = [...this.GetTierOneResources(tempResourceTiers, tempRecipes)]
         
-        while(tempRecipes.length > 0){
+        let previousLength = -1;
+        while (tempRecipes.length > 0) {
+            if (tempRecipes.length === previousLength) {
+                throw new Error("Stuck in tier calculation. Unresolved recipes:" + tempRecipes)
+            }
+            previousLength = tempRecipes.length;
+
             const validGradingResource = tempRecipes.filter((r) => {
-                const inputResourcePresenceArr = r.inputResources.map(inputResource => {
-                    if(tempResourceTiers[inputResource] != null){
-                        return true
-                    }
-                    else return false
-                })
-                return (inputResourcePresenceArr.includes(false)) ? false : true
-            })
-            this.calculateTiersOfValidResource(tempResourceTiers, tempRecipes)
-            tempRecipes = tempRecipes.filter(r => !validGradingResource.includes(r))
+                return r.inputResources.every(input => tempResourceTiers[input] != null);
+            });
+
+            this.calculateTiersOfValidResource(tempResourceTiers, validGradingResource);
+            tempRecipes = tempRecipes.filter(r => !validGradingResource.includes(r));
         }
         this.resourceTiers = tempResourceTiers
 

@@ -15,7 +15,7 @@ import { unSkilledWorker } from "./Entities/unskilledWorker";
 import { TierManager } from "./Util/tierManager";
 
 export let days = 0;
-let currentSimulationStep = ""
+export let currentSimulationStep = ""
 let totalMoney = 0
 
 addDrawEvent(() => {d.text(`Day: ${days}, Step: ${currentSimulationStep}`,22,10,25,HorizontalAllign.start,undefined,new color(255, 255, 255));});
@@ -34,7 +34,7 @@ drawUiEvent.subscribe(() => drawEntities(entities))
 workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []) , "water"));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "meat"));
 
-//workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "butcher", ["sheep"], ["meat", "meat"]));

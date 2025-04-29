@@ -1,18 +1,11 @@
 import { ResourceType } from "../Util/type"
 import { resourceAmountData } from "../Util/log"
-import { vitalResources } from "../Util/util"
 
 export class QolManager{
 
     public static calculateQOL(resources: ResourceType){
         let qol = 0
         Object.entries(resources).forEach(r => {
-            if(vitalResources.includes(r[0])){
-                //qol + 0.7 //this makes vital resources more valauble that non vital resources we have 0 of
-            }
-            else{
-               
-            }
             qol += Math.log(r[1].amount + 1)
         })
         return qol
@@ -35,7 +28,7 @@ export class QolManager{
                 maxQolIncrease = qolIncrease
                 maxQolResources = [resource[0]]
             }
-            else if(maxQolIncrease == qolIncrease){
+            else if(maxQolIncrease == qolIncrease && resourceAmountData[resource[0]] != 0){
                 maxQolResources.push(resource[0])
             }
         })

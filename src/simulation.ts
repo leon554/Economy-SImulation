@@ -31,15 +31,15 @@ export const updateUIEvent = new Event<() => void>()
 export const drawUiEvent = new Event<() => void>()
 drawUiEvent.subscribe(() => drawEntities(entities))
 
-workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []) , "water"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5]) , "water"));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "meat"));
 
-workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5]), "sheep"));
+workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5]), "sheep"));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-//workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
-workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "butcher", ["sheep"], ["meat", "meat"]));
-//workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "skinner", ["sheep"], ["wool", "wool"]));
-//workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5], []), "shirt", ["wool"], ["shirt"]));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5]), "butcher", ["sheep"], ["meat", "meat"]));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5]), "skinner", ["sheep"], ["wool", "wool"]));
+workers.push(new SpecialisedWorker(1000, CreateResources(["water", "meat"], [5,5]), "shirt", ["wool"], ["shirt"]));
 //workers.push(new unSkilledWorker(100, CreateResources(["water", "meat"], [5,5], []), "sheep"));
 
 institutions.push(new Bank(10000))

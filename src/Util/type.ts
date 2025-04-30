@@ -31,6 +31,7 @@ export interface SaleType{
     buyerID: number
     amountSold: number
     price: number
+    resource: string
 }
 export enum EntityType {
     unSkilledWorker ="unSkilledWorker",

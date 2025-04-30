@@ -1,3 +1,4 @@
+import { TAX_RATE } from "../constants";
 import {updateUIEvent } from "../simulation";
 import { Position, Drawable, EntityType} from "../Util/type";
 import {  getID, } from "../Util/util";
@@ -21,7 +22,7 @@ export abstract class Institution implements Drawable {
         updateUIEvent.subscribe(() => this.updateDrawData())
     }
     private updateDrawData() {
-        this.drawData = `$${Math.round(this.money)}^${this.currentActivity}`;
+        this.drawData = `$${Math.round(this.money)}^Tax Rate: ${TAX_RATE*100}%^${this.currentActivity}`;
     }
     abstract work(entities: baseWorker[]): Promise<void>;
 }

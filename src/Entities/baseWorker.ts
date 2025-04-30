@@ -29,6 +29,9 @@ export abstract class baseWorker implements Drawable{
     protected updateDrawData() {
         this.drawData = `ID: ${this.id}, $${Math.round(this.money)}, p${profesionTable[this.profesion]} QOL: ${Math.round(QolManager.calculateQOL(this.resources)*100)/100} ^ ${this.getResourcesAsString()} ^ ${this.currentActivity}`;
     }
+    public getQol(){
+        return QolManager.calculateQOL(this.resources)
+    }
     protected getResourcesAsString() {
         let resources: string = "";
         Object.entries(this.resources).map((entry) => {
@@ -80,12 +83,12 @@ export abstract class baseWorker implements Drawable{
 
         return hasBoughtArr.includes(true)
     }
+
     protected async MakeBuyOffer(people: baseWorker[], resource: string){
         if(this.resources[resource].buyPrice >= this.money) return false 
 
         let NoSupply = false
         while(this.resources[resource].buyPrice < this.money && NoSupply == false){
-            //make event that fires to check if anyone is selleing resource x
             NoSupply = true
             for (const potentialSeller of people) {
                 if(potentialSeller.id == this.id) continue
@@ -95,7 +98,7 @@ export abstract class baseWorker implements Drawable{
                 
                 if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
                 if(buyOfferSucces.saleSucces){
-                    //this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
+                    this.currentActivity = `Bought ${ResourceTable[resource]} from ${potentialSeller.id}`
                     this.resources[resource].buyPrice -= this.resources[resource].buyPrice > 1 ? 1 : 0
                     return true
                 }
@@ -133,14 +136,14 @@ export abstract class baseWorker implements Drawable{
 
         await updateUIEvent.emit()
 
-        await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price}, workers)
+        await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price, resource: resource}, workers)
 
         await updateUIEvent.emit()
 
-       this.increaseSellPriceIfSoldOut(resource, resourceReserveAmount)
+        this.increaseSellPriceIfSoldOut(resource, resourceReserveAmount)
 
 
-        //this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
+        this.currentActivity = `sold ${ResourceTable[resource]} to ${buyer.id} for $${price}`
         return {saleSucces: true, denyReason: DenyReason.None}
     }
 

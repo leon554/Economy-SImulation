@@ -59,12 +59,12 @@ export const profesionIcon : {[key: string]: string} = {
 export const vitalResources = ["water", "meat"]
 
 export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number, tier: number){
-  return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0, tier};
+  return { amount, buyPrice, sellPrice, dayPriceLastUpdated: 0, tier, minSellPrice: 0};
 }
-export function CreateResources(resources: string[], amounts: number[], tiers: number[], buyPrice: number = 10, sellPrice: number = 10){
+export function CreateResources(resources: string[], amounts: number[],  buyPrice: number = 10, sellPrice: number = 10){
   let resourcesObj: ResourceType = {}
   resources.forEach((r, i) => {
-    resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice, (tiers.length > 0)? tiers[i]: 1)
+    resourcesObj[r] = CreateResourceData(amounts[i], buyPrice, sellPrice, 1)
   })
   return resourcesObj
 }

@@ -58,6 +58,7 @@ export class QolManager{
         }
                 
         if(QolManager.checkAllNonZeroResourcesEqual(resources)) return ""
+        if(!QolManager.checkOnlyOneHighestResource(resources)) return ""
         return minQolResource
     }
     private static checkAllNonZeroResourcesEqual(resources: ResourceType){
@@ -66,5 +67,11 @@ export class QolManager{
         resourceData = resourceData.filter(rd => rd.amount > 0)
         const checkAmount = resourceData[0].amount
         return resourceData.every(r => r.amount === checkAmount)
+    }
+    private static checkOnlyOneHighestResource(resources: ResourceType){
+        //checks if theres one maximum e.g 20, 3, 15 true, 20, 20, 13 false
+        const maxResourceAmt = Math.max(...Object.values(resources).map(r => r.amount))
+        const amtOfResourcesAtMax = Object.values(resources).filter(r => r.amount == maxResourceAmt)
+        return (amtOfResourcesAtMax.length > 1) ? false : true 
     }
 }

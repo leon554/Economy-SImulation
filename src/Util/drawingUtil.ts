@@ -12,27 +12,9 @@ export const drawEvents: Function[] = []
 export function addDrawEvent(func: Function){
     drawEvents.push(func)
 }
-export function drawEntities(entities: Drawable[]){
-    d.Clear()
-    entities.forEach((e) => {
-        const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
-        const upperLowerData = e.drawData.split("^")
-        d.text(upperLowerData[0], 11, e.position.x, e.position.y - 17, HorizontalAllign.centre, undefined, new color(255,255,255))
-        d.text(profEmoji, 18, e.position.x, e.position.y, HorizontalAllign.centre, undefined, new color(255,255,100))
-        if(upperLowerData.length < 2) return
-        d.text(upperLowerData[1], 11, e.position.x, e.position.y + 17, HorizontalAllign.centre, undefined, new color(255,255,255))
-        if(upperLowerData.length < 3) return
-        d.text(upperLowerData[2], 11, e.position.x, e.position.y + 32, HorizontalAllign.centre, undefined, new color(255,255,255))
-    })
-    drawEvents.forEach(e => e())
-}
 
-export function setEntitiesPos(entities: Drawable[]){
-    const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
-    entities.forEach((e, i) => {
-        e.position = {x: points[i].x, y: points[i].y}  
-    })
-}
+
+
 
 function generatePoints(start: number[], end: number[]) {
     const points = [];
@@ -44,19 +26,6 @@ function generatePoints(start: number[], end: number[]) {
     return points;
 }
 
-export function generateCirclePoints(radius: number, amount: number, x: number, y: number): { x: number, y: number }[] {
-    const points: { x: number, y: number }[] = [];
-    const angleIncrement = (2 * Math.PI) / amount;
-  
-    for (let i = 0; i < amount; i++) {
-        const angle = i * angleIncrement;
-        const pointX = x + radius * Math.cos(angle);
-        const pointY = y + radius * Math.sin(angle);
-        points.push({ x: pointX, y: pointY });
-    }
-  
-    return points;
-}
 
 export const sleep = (delay:number) => new Promise((resolve) => setTimeout(resolve, delay))
 
@@ -81,6 +50,3 @@ export async function drawOneWayTransaction(from: Position, To: Position, drawSt
     }
 }
 
-export function getCenterPoint(){
-    return {x: canvas.width/2, y: canvas.height/2}
-}

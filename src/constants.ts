@@ -1,5 +1,5 @@
 
-export const GATHER_AMOUNT = 6
+export const GATHER_AMOUNT = 5
 export const MIN_VITAL_RESOURCE_AMT = 5
 //bank
 export const TAX_RATE = 0.2

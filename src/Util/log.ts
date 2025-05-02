@@ -3,8 +3,9 @@ import { HorizontalAllign } from "../draw/Draw"
 import { color } from "../draw/Color"
 import { addDrawEvent } from "./drawingUtil"
 import {  ResourceTable } from "./util"
-import { baseWorker } from "../Entities/baseWorker"
 import { TierManager } from "./tierManager"
+import { ECS } from "../ecs"
+import { Inventory } from "../Components/components"
 
 
 let resourcePriceString = ""
@@ -21,13 +22,14 @@ addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, Horizonta
 addDrawEvent(() => {d.text(TierManager.getTierString(),12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));})
 addDrawEvent(() => {d.text(resourceAmountString,12,10,175, HorizontalAllign.start,undefined,new color(255, 255, 255));});
 
-export function calculateResourceData(entities: baseWorker[]){
+export function calculateResourceData(ecs: ECS){
     resourcePriceString = ""
     resourcePriceMinString = ""
     resourcePriceMaxString = ""
     resourceAmountString = ""
     const resourceDict: { [key: string]: {sellPriceSum: number, buyPriceSum: number, frequency: number, amount: number, maxPrice: number, minPrice:number}} = {}
     
+    const entities = ecs.getComponents(Inventory)
     entities.forEach(e => {
         Object.entries(e.resources).forEach(r => {
             if(resourceDict[r[0]] == null){

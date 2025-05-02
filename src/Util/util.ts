@@ -52,7 +52,7 @@ export const profesionTable : {[key: string]: string} = {
 export const profesionIcon : {[key: string]: string} = {
   "water": "👷",
   "sheep": "🧑‍🌾",
-  "meat": "👷",
+  "meat": "🧑‍🌾",
   "bank": "🏦",
   "butcher": "🙋"
 }
@@ -72,4 +72,20 @@ export function CategoriseEntities(workers: baseWorker[], institutions: Bank[], 
   entitiesInCategories.unSkilledWorkers = workers.filter(e => e.type == EntityType.unSkilledWorker) as unSkilledWorker[]
   entitiesInCategories.specialisedWorkers = workers.filter(e => e.type == EntityType.specialisedWorker) as SpecialisedWorker[]
   entitiesInCategories.banks = institutions.filter(e => e.type == EntityType.bank) as Bank[]
+}
+export function getResourcesAsString(resources: ResourceType) {
+  let resourcesString: string = "";
+  Object.entries(resources).map((entry) => {
+      if(entry[1].amount > 0){
+          resourcesString += `${ResourceTable[entry[0]]}${entry[1].amount}`;
+      }
+  });
+  return resourcesString;
+}
+export function checkAndCreateResources(resources: ResourceType){
+  Object.keys(ResourceTable).forEach(resource => {
+      if(resources[resource] == null){
+          resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1, minSellPrice: 0}
+      }
+  })
 }

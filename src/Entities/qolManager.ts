@@ -11,6 +11,7 @@ export class QolManager{
         return qol
     }
     public static bestBuyResourcesForQol(resources: ResourceType){
+        
         let maxQolIncrease = 0
         let maxQolResources: string[] = []
 

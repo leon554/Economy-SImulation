@@ -1,6 +1,6 @@
 import { baseWorker } from "./baseWorker";
 import { GATHER_AMOUNT } from "../constants";
-import { drawEntities, drawOneWayTransaction, getCenterPoint } from "../Util/drawingUtil";
+import { drawOneWayTransaction } from "../Util/drawingUtil";
 import { calculateResourceData } from "../Util/log";
 import {  updateUIEvent } from "../simulation";
 import { ResourceType, EntityType} from "../Util/type";
@@ -18,12 +18,12 @@ export class unSkilledWorker extends baseWorker{
     public async work(entities: baseWorker[]) {
         this.checkAndCreateResources()
       
-        await drawOneWayTransaction(getCenterPoint(), this.position, ResourceTable[ProfesionToResource[this.profesion]])
+       // await drawOneWayTransaction(getCenterPoint(), this.position, ResourceTable[ProfesionToResource[this.profesion]])
         this.resources[ProfesionToResource[this.profesion]].amount += GATHER_AMOUNT;
         this.currentActivity = `Worked +${GATHER_AMOUNT}${ResourceTable[ProfesionToResource[this.profesion]]}`
-        calculateResourceData(entities)
+        //calculateResourceData(entities)
         
         await updateUIEvent.emit()
-        drawEntities(entities)
+        //drawEntities(entities)
     }
 }

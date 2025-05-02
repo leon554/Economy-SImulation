@@ -136,7 +136,7 @@ export abstract class baseWorker implements Drawable{
 
         await updateUIEvent.emit()
 
-        await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price, resource: resource}, workers)
+        //await saleEvent.emit({buyerID: buyer.id, sellerID: seller.id, amountSold: 1, price: price, resource: resource}, workers)
 
         await updateUIEvent.emit()
 

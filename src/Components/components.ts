@@ -26,8 +26,9 @@ export class Inventory{
 }
 export class isTradeable{}
 export class Bank {}
+export class wellfareRecievable {}
 
-export class BaseWork{
+export class unskilledWork{
     ProductionResources: string[]
 
     constructor(outputResources: string[]){
@@ -35,6 +36,16 @@ export class BaseWork{
 
     }
 }
-export class SkilledWork{
+export class skilledWork{
+    inputResources: string[]
+    outputResources: string[]
+    totalBought: number = 0
+    totalBoughtPrice: number = 0
+    avgBuyPrice: number = 0
+    profit: number = 0
 
+    constructor(inputResources: string[], outputResources: string[]){
+        this.inputResources = inputResources
+        this.outputResources = outputResources
+    }
 }

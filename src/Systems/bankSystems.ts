@@ -1,17 +1,15 @@
 import { ECS, Entity } from "../ecs"
 import { SaleType } from "../Util/type"
-import { Bank, drawComp, Inventory } from "./components"
+import { Bank, drawComp, Inventory, wellfareRecievable } from "../Components/components"
 import { drawOneWayTransaction, UpdateDrawText } from "./drawSystems"
 import { TAX_RATE } from "../constants"
 import { MIN_VITAL_RESOURCE_AMT, PAY_WELFARE_TO_LOWEST_QOL, WELLFARE_MULTIPLIER} from "../constants"
-import { QolManager } from "../Entities/qolManager"
+import { QolManager } from "../Util/qolManager"
 import { resourcePrices } from "../Util/log"
-
-
+import { checkAndCreateResources } from "../Util/util"
 
 
 export async function handleSaleTax(saleData: SaleType, ecs: ECS) {
-    console.log("sdsd")
     const sellerPos = ecs.getComponent(saleData.sellerID, drawComp)
     const banks = ecs.getEntitiesWithComponents(Bank)
     const bankPos = ecs.getComponent(banks[0], drawComp)
@@ -28,13 +26,13 @@ export async function handleSaleTax(saleData: SaleType, ecs: ECS) {
     UpdateDrawText(ecs)
 }  
 
-
-async function work(ecs: ECS) {
+export async function handleWelfarePayments(ecs: ECS) {
     let smallestQolEntity: Entity = 0
 
-    const entities = ecs.getEntitiesWithComponents(drawComp, Inventory)
+    const entities = ecs.getEntitiesWithComponents(drawComp, Inventory, wellfareRecievable)
     for(const e of entities){
         const invetory = ecs.getComponent(e, Inventory)
+        checkAndCreateResources(invetory!.resources)
 
         const meatAmt = invetory!.resources["meat"].amount
         const waterAmt = invetory!.resources["water"].amount

@@ -1,9 +1,9 @@
 import { ECS, Entity } from "../ecs"
-import { Inventory, BaseWork, drawComp, isTradeable } from "./components"
+import { Inventory, unskilledWork, drawComp, isTradeable } from "../Components/components"
 import { checkAndCreateResources, ResourceTable} from "../Util/util"
 import { GATHER_AMOUNT, TAX_RATE } from "../constants"
 import { drawOneWayTransaction, getCenterPoint, UpdateDrawText, drawTransaction} from "./drawSystems"
-import { QolManager } from "../Entities/qolManager"
+import { QolManager } from "../Util/qolManager"
 import { SellerReturnType, DenyReason, ResourceType } from "../Util/type"
 import { days } from "../simulation"
 import { MAX_BUY_SELL_PRICE } from "../constants"
@@ -12,11 +12,11 @@ import { saleEvent } from "../simulation"
 
 
 export async function Work(ecs: ECS){
-    const entities = ecs.getEntitiesWithComponents(Inventory, BaseWork, drawComp)
+    const entities = ecs.getEntitiesWithComponents(Inventory, unskilledWork, drawComp)
 
     for(const entity of entities){
         const drawdata = ecs.getComponent(entity, drawComp)
-        const workdata = ecs.getComponent(entity, BaseWork)
+        const workdata = ecs.getComponent(entity, unskilledWork)
         const inventoryData = ecs.getComponent(entity, Inventory)
 
         checkAndCreateResources(inventoryData!.resources)
@@ -60,7 +60,7 @@ async function  makeBuyOffers(entity: Entity, ecs: ECS){
     return hasBoughtArr.includes(true)
 }
 
-async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
+export async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
     const inventoryData = ecs.getComponent(entity, Inventory)
 
     if(inventoryData!.resources[resource].buyPrice >= inventoryData!.money) return false 
@@ -135,7 +135,6 @@ function shouldReduceSellPrice(offerPrice: number, resource: string, resources: 
 }
 function increaseSellPriceIfSoldOut(resource: string, resourceReserveAmount: number, seller: Inventory){
     //change this to reduce selle price if its not the chosen sell item
-        if(seller.resources[resource].amount > resourceReserveAmount) return 
-        
+    if(seller.resources[resource].amount > resourceReserveAmount) return 
         seller.resources[resource].sellPrice += (seller.resources[resource].sellPrice < MAX_BUY_SELL_PRICE) ? 1: 0
     }

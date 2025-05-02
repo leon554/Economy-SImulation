@@ -1,5 +1,5 @@
-import { ResourceType } from "../Util/type"
-import { resourceAmountData } from "../Util/log"
+import { ResourceType } from "./type"
+import { resourceAmountData } from "./log"
 
 export class QolManager{
 
@@ -64,8 +64,11 @@ export class QolManager{
     }
     private static checkAllNonZeroResourcesEqual(resources: ResourceType){
         let resourceData = Object.values(resources)
+ 
         if (resourceData.length === 0) return true;
         resourceData = resourceData.filter(rd => rd.amount > 0)
+        if(resourceData.length === 0) return true
+
         const checkAmount = resourceData[0].amount
         return resourceData.every(r => r.amount === checkAmount)
     }

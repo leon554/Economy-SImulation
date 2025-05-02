@@ -1,31 +1,19 @@
-import type { baseWorker } from "../Entities/baseWorker"
-import type { Bank } from "../Entities/bank"
-import type { entitiesInCategoriesType } from "./type"
-import { EntityType } from "./type"
 import { ResourceType } from "./type"
-import type { unSkilledWorker } from "../Entities/unskilledWorker"
-import type { SpecialisedWorker } from "../Entities/specialisedWorke"
 
 let workerID = 0
 export function getID(){
-    let temp = workerID
-    workerID++
-    return temp
+  let temp = workerID
+  workerID++
+  return temp
 }
 
 export function shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array]; 
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1)); 
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
-export function findWorkerByID(workers: baseWorker[], id: number){
-  const worker =  workers.find(w => w.id == id)
-  if(worker == undefined) throw new Error("ID given should exist at all times")
-  return worker
+  const shuffled = [...array]; 
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1)); 
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 export const ResourceTable : {[key: string]: string} = {
@@ -68,24 +56,19 @@ export function CreateResources(resources: string[], amounts: number[],  buyPric
   })
   return resourcesObj
 }
-export function CategoriseEntities(workers: baseWorker[], institutions: Bank[], entitiesInCategories: entitiesInCategoriesType){
-  entitiesInCategories.unSkilledWorkers = workers.filter(e => e.type == EntityType.unSkilledWorker) as unSkilledWorker[]
-  entitiesInCategories.specialisedWorkers = workers.filter(e => e.type == EntityType.specialisedWorker) as SpecialisedWorker[]
-  entitiesInCategories.banks = institutions.filter(e => e.type == EntityType.bank) as Bank[]
-}
 export function getResourcesAsString(resources: ResourceType) {
   let resourcesString: string = "";
   Object.entries(resources).map((entry) => {
-      if(entry[1].amount > 0){
-          resourcesString += `${ResourceTable[entry[0]]}${entry[1].amount}`;
-      }
+    if(entry[1].amount > 0){
+      resourcesString += `${ResourceTable[entry[0]]}${entry[1].amount}`;
+    }
   });
   return resourcesString;
 }
 export function checkAndCreateResources(resources: ResourceType){
   Object.keys(ResourceTable).forEach(resource => {
-      if(resources[resource] == null){
-          resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1, minSellPrice: 0}
-      }
+    if(resources[resource] == null){
+      resources[resource] = {amount: 0, buyPrice: 10, sellPrice: 10, dayPriceLastUpdated: 0, tier: 1, minSellPrice: 0}
+    }
   })
 }

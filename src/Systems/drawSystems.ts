@@ -1,5 +1,5 @@
 import { ECS, Entity } from "../ecs";
-import { drawComp, Inventory } from "./components";
+import { drawComp, Inventory } from "../Components/components";
 import { d } from "../main";
 import { getResourcesAsString, profesionIcon, profesionTable, ResourceTable } from "../Util/util";
 import { HorizontalAllign } from "../draw/Draw";
@@ -29,9 +29,12 @@ export function generateCirclePoints(radius: number, amount: number, x: number, 
   
     return points;
 }
+export const drawEvents: Function[] = []
+export function addDrawEvent(func: Function){
+    drawEvents.push(func)
+}
 export function drawEntities(ecs: ECS){
     const entities = ecs.getComponents(drawComp)
-
     d.Clear()
     entities.forEach((e) => {
         const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
@@ -43,6 +46,7 @@ export function drawEntities(ecs: ECS){
         if(upperLowerData.length < 3) return
         d.text(upperLowerData[2], 11, e.position.x, e.position.y + 32, HorizontalAllign.centre, undefined, new color(255,255,255))
     })
+    drawEvents.forEach(d => d())
 }
 export function UpdateDrawText(ecs: ECS){
     const entities = ecs.getEntitiesWithComponents(drawComp, Inventory)

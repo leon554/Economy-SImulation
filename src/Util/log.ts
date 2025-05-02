@@ -1,11 +1,11 @@
 import { d } from "../main"
 import { HorizontalAllign } from "../draw/Draw"
 import { color } from "../draw/Color"
-import { addDrawEvent } from "./drawingUtil"
 import {  ResourceTable } from "./util"
 import { TierManager } from "./tierManager"
 import { ECS } from "../ecs"
 import { Inventory } from "../Components/components"
+import { addDrawEvent } from "../Systems/drawSystems"
 
 
 let resourcePriceString = ""

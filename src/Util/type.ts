@@ -1,6 +1,4 @@
-import type { Bank } from "../Entities/bank";
-import type { SpecialisedWorker } from "../Entities/specialisedWorke";
-import type { unSkilledWorker } from "../Entities/unskilledWorker";
+
 
 export interface Position{
     x: number
@@ -39,11 +37,6 @@ export enum EntityType {
     bank="bank",
     baseWorker="baseWorker",
     institution="institution",
-}
-export interface entitiesInCategoriesType{
-    unSkilledWorkers: unSkilledWorker[]
-    specialisedWorkers: SpecialisedWorker[]
-    banks: Bank[]
 }
 export const entitiesInCategoriesIntitial = {
     unSkilledWorkers: [],

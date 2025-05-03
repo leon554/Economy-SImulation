@@ -3,7 +3,7 @@ import { HorizontalAllign } from "../draw/Draw"
 import { color } from "../draw/Color"
 import {  ResourceTable } from "./util"
 import { TierManager } from "./tierManager"
-import { ECS } from "../ecs"
+import { ECS } from "./ecs"
 import { Inventory } from "../Components/components"
 import { addDrawEvent } from "../Systems/drawSystems"
 
@@ -15,12 +15,13 @@ let resourceAmountString = ""
 export let resourceAmountData : {[key: string]: number} = {}
 export let resourcePrices : { [key: string]: {avgSellPrice: number, avgBuyPrice: number}} = {}
 
-
-addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-addDrawEvent(() => {d.text("Max: " + resourcePriceMaxString,12,10,100, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, HorizontalAllign.start,undefined,new color(255, 255, 255));});
-addDrawEvent(() => {d.text(TierManager.getTierString(),12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));})
-addDrawEvent(() => {d.text(resourceAmountString,12,10,175, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+export function InitLog(){
+    addDrawEvent(() => {d.text(resourcePriceString,12,10,75, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+    addDrawEvent(() => {d.text("Max: " + resourcePriceMaxString,12,10,100, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+    addDrawEvent(() => {d.text("Min: " + resourcePriceMinString,12,10,125, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+    addDrawEvent(() => {d.text(TierManager.getTierString(),12,10,150, HorizontalAllign.start,undefined,new color(255, 255, 255));})
+    addDrawEvent(() => {d.text(resourceAmountString,12,10,175, HorizontalAllign.start,undefined,new color(255, 255, 255));});
+}
 
 export function calculateResourceData(ecs: ECS){
     resourcePriceString = ""

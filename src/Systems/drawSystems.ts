@@ -1,5 +1,5 @@
-import { ECS, Entity } from "../ecs";
-import { drawComp, Inventory } from "../Components/components";
+import { ECS, Entity } from "../Util/ecs";
+import { ActivityTracker, DrawComp, Inventory } from "../Components/components";
 import { d } from "../main";
 import { getResourcesAsString, profesionIcon, profesionTable, ResourceTable } from "../Util/util";
 import { HorizontalAllign } from "../draw/Draw";
@@ -7,9 +7,10 @@ import { color } from "../draw/Color";
 import { canvas } from "../main";
 import { GAME_SPEED } from "../constants";
 import { Position } from "../Util/type";
+import { QolManager } from "../Util/qolManager";
 
 export function setEntitiesPos(ecs: ECS){
-    const entities = ecs.getComponents(drawComp)
+    const entities = ecs.getComponents(DrawComp)
 
     const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
     entities.forEach((e, i) => {
@@ -29,12 +30,14 @@ export function generateCirclePoints(radius: number, amount: number, x: number, 
   
     return points;
 }
-export const drawEvents: Function[] = []
+console.log("SDFHJKSHGDKJ 123")
+let drawEvents: Function[] = []
 export function addDrawEvent(func: Function){
     drawEvents.push(func)
 }
+
 export function drawEntities(ecs: ECS){
-    const entities = ecs.getComponents(drawComp)
+    const entities = ecs.getComponents(DrawComp)
     d.Clear()
     entities.forEach((e) => {
         const profEmoji = (profesionIcon[e.profesion] == null) ? "🧑" : profesionIcon[e.profesion]
@@ -49,12 +52,13 @@ export function drawEntities(ecs: ECS){
     drawEvents.forEach(d => d())
 }
 export function UpdateDrawText(ecs: ECS){
-    const entities = ecs.getEntitiesWithComponents(drawComp, Inventory)
+    const entities = ecs.getEntitiesWithComponents(DrawComp, Inventory)
     for(const entity of entities){
-        const drawcomp = ecs.getComponent(entity, drawComp)
+        const drawcomp = ecs.getComponent(entity, DrawComp)
         const inventory = ecs.getComponent(entity, Inventory)
+        const activityData = (ecs.hasComponent(entity, ActivityTracker)) ? ecs.getComponent(entity, ActivityTracker) : null
 
-        drawcomp!.drawText = `ID: ${entity} $${Math.round(inventory!.money)} ${profesionTable[drawcomp!.profesion] ? `p${profesionTable[drawcomp!.profesion]}` : ""}^ ${getResourcesAsString(inventory!.resources)}`
+        drawcomp!.drawText = `ID: ${entity} $${Math.round(inventory!.money)} ${profesionTable[drawcomp!.profesion] ? `p${profesionTable[drawcomp!.profesion]}` : ""} QOL: ${Math.round(QolManager.calculateQOL(inventory!.resources)*100)/100}^ ${getResourcesAsString(inventory!.resources)} ^ ${(activityData) ? activityData.currentActivity : ""}`
     }
     drawEntities(ecs)
 }
@@ -68,8 +72,8 @@ export async function drawOneWayTransaction(from: Position, To: Position, drawSt
     }
 }
 export async function drawTransaction(buyer: Entity, seller: Entity, resource: string, ecs: ECS){
-    const bPos = ecs.getComponent(buyer, drawComp)
-    const sPos = ecs.getComponent(seller, drawComp)
+    const bPos = ecs.getComponent(buyer, DrawComp)
+    const sPos = ecs.getComponent(seller, DrawComp)
     const sToB = generatePoints([sPos!.position.x, sPos!.position.y], [bPos!.position.x, bPos!.position.y])
     const bTos = generatePoints( [bPos!.position.x, bPos!.position.y], [sPos!.position.x, sPos!.position.y])
     

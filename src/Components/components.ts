@@ -1,7 +1,7 @@
 import { Position } from "../Util/type";
 import { ResourceType } from "../Util/type";
 
-export class drawComp{
+export class DrawComp{
     position: Position = {x: 0, y: 0}
     profesion: string
     drawText: string = ""
@@ -9,12 +9,7 @@ export class drawComp{
     constructor( profesion: string){
         this.profesion = profesion
     }
-
-    setDrawText(drawText: string){
-        this.drawText = drawText
-    }
 }
-
 export class Inventory{
     resources: ResourceType;
     money: number
@@ -24,19 +19,14 @@ export class Inventory{
         this.money = money
     }
 }
-export class isTradeable{}
-export class Bank {}
-export class wellfareRecievable {}
-
-export class unskilledWork{
-    ProductionResources: string[]
+export class UnSkilledWork{
+    productionResources: string[]
 
     constructor(outputResources: string[]){
-        this.ProductionResources = outputResources
-
+        this.productionResources = outputResources
     }
 }
-export class skilledWork{
+export class SkilledWork{
     inputResources: string[]
     outputResources: string[]
     totalBought: number = 0
@@ -49,3 +39,12 @@ export class skilledWork{
         this.outputResources = outputResources
     }
 }
+export class ActivityTracker{
+    currentActivity: string =""
+    constructor(){}
+}
+export class IsTradeable{}
+export class Bank {}
+export class WellfareRecievable {}
+
+

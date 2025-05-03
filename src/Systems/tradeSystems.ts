@@ -1,5 +1,5 @@
-import { ECS, Entity } from "../ecs"
-import { Inventory, unskilledWork, drawComp, isTradeable } from "../Components/components"
+import { ECS, Entity } from "../Util/ecs"
+import { Inventory, UnSkilledWork, DrawComp, IsTradeable, Bank } from "../Components/components"
 import { checkAndCreateResources, ResourceTable} from "../Util/util"
 import { GATHER_AMOUNT, TAX_RATE } from "../constants"
 import { drawOneWayTransaction, getCenterPoint, UpdateDrawText, drawTransaction} from "./drawSystems"
@@ -9,22 +9,24 @@ import { days } from "../simulation"
 import { MAX_BUY_SELL_PRICE } from "../constants"
 import { calculateResourceData } from "../Util/log"
 import { saleEvent } from "../simulation"
+import { setCurrentActivity } from "./utilSystems"
 
 
 export async function Work(ecs: ECS){
-    const entities = ecs.getEntitiesWithComponents(Inventory, unskilledWork, drawComp)
+    const entities = ecs.getEntitiesWithComponents(Inventory, UnSkilledWork, DrawComp)
 
     for(const entity of entities){
-        const drawdata = ecs.getComponent(entity, drawComp)
-        const workdata = ecs.getComponent(entity, unskilledWork)
+        const drawdata = ecs.getComponent(entity, DrawComp)
+        const workdata = ecs.getComponent(entity, UnSkilledWork)
         const inventoryData = ecs.getComponent(entity, Inventory)
 
         checkAndCreateResources(inventoryData!.resources)
 
-        for(const outputResource of workdata!.ProductionResources){
+        for(const outputResource of workdata!.productionResources){
             await drawOneWayTransaction(getCenterPoint(), drawdata!.position, ResourceTable[outputResource], ecs)
             inventoryData!.resources[outputResource].amount += GATHER_AMOUNT;
                 
+            setCurrentActivity(`Worked ${ResourceTable[outputResource]} +${GATHER_AMOUNT}`, entity, ecs)
             UpdateDrawText(ecs)
         }
     }
@@ -33,7 +35,7 @@ export async function Work(ecs: ECS){
 }
 
 export async function MakeTrades(ecs: ECS){
-    const entities = ecs.getEntitiesWithComponents(Inventory, drawComp, isTradeable)
+    const entities = ecs.getEntitiesWithComponents(Inventory, DrawComp, IsTradeable)
 
     let buyDemand = true;
     while (buyDemand) {
@@ -68,13 +70,16 @@ export async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
     let NoSupply = false
     while(inventoryData!.resources[resource].buyPrice < inventoryData!.money && NoSupply == false){
         NoSupply = true
-        for (const potentialSeller of ecs.getEntitiesWithComponents(isTradeable, Inventory)) {
+        for (const potentialSeller of ecs.getEntitiesWithComponents(IsTradeable, Inventory)) {
             if(potentialSeller == entity) continue
 
+            setCurrentActivity(`Offer To ${potentialSeller} for ${ResourceTable[resource]} $${inventoryData!.resources[resource].buyPrice}`, entity, ecs)
             const buyOfferSucces = await isWillingToSellX(resource, inventoryData!.resources[resource].buyPrice, entity, potentialSeller, ecs)
                 
             if(buyOfferSucces.denyReason != DenyReason.NotEnoughSupply) NoSupply = false
             if(buyOfferSucces.saleSucces){
+                setCurrentActivity(`Bought ${ResourceTable[resource]} from ${potentialSeller} for $${inventoryData!.resources[resource].buyPrice}`, entity, ecs)
+                UpdateDrawText(ecs)
                 inventoryData!.resources[resource].buyPrice -= inventoryData!.resources[resource].buyPrice > 1 ? 1 : 0
                 return true
             }
@@ -84,6 +89,8 @@ export async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
             inventoryData!.resources[resource].buyPrice++
         }else break
     }
+    setCurrentActivity(`Buy Failed for ${ResourceTable[resource]}`, entity, ecs)
+    UpdateDrawText(ecs)
     return false
 }
 
@@ -109,9 +116,12 @@ async function isWillingToSellX(resource: string, price: number, buyerID: number
         
     await drawTransaction(buyerID, sellerID, resource, ecs)
 
-    seller!.money += (price * (1-TAX_RATE))
+    const tax = (price * TAX_RATE) * ecs.getEntitiesWithComponents(Bank).length
+    const profit = price - tax
+    seller!.money += profit
     buyer!.resources[resource].amount++
 
+    setCurrentActivity(`Sold ${ResourceTable[resource]} r$${price} p$${Math.round(profit*100)/100 } t$${Math.round(tax*100)/100}`, sellerID, ecs)
     await UpdateDrawText(ecs)
 
     await saleEvent.emit({buyerID: buyerID, sellerID: sellerID, amountSold: 1, price: price, resource: resource}, ecs)

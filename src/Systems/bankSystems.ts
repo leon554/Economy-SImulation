@@ -1,35 +1,39 @@
-import { ECS, Entity } from "../ecs"
+import { ECS, Entity } from "../Util/ecs"
 import { SaleType } from "../Util/type"
-import { Bank, drawComp, Inventory, wellfareRecievable } from "../Components/components"
+import { Bank, DrawComp, Inventory, WellfareRecievable } from "../Components/components"
 import { drawOneWayTransaction, UpdateDrawText } from "./drawSystems"
 import { TAX_RATE } from "../constants"
 import { MIN_VITAL_RESOURCE_AMT, PAY_WELFARE_TO_LOWEST_QOL, WELLFARE_MULTIPLIER} from "../constants"
 import { QolManager } from "../Util/qolManager"
 import { resourcePrices } from "../Util/log"
 import { checkAndCreateResources } from "../Util/util"
+import { setCurrentActivity } from "./utilSystems"
 
 
 export async function handleSaleTax(saleData: SaleType, ecs: ECS) {
-    const sellerPos = ecs.getComponent(saleData.sellerID, drawComp)
+    const sellerPos = ecs.getComponent(saleData.sellerID, DrawComp)
     const banks = ecs.getEntitiesWithComponents(Bank)
-    const bankPos = ecs.getComponent(banks[0], drawComp)
 
-    if(sellerPos == undefined || bankPos == undefined) return
+    for(const bank of banks){
+        const bankPos = ecs.getComponent(bank, DrawComp)
+        const bankInventory = ecs.getComponent(bank, Inventory)
 
-    await drawOneWayTransaction(sellerPos.position, bankPos.position, "💰", ecs)
+        if(sellerPos == undefined || bankPos == undefined) return
 
-    const bankInventory = ecs.getComponent(banks[0], Inventory)
-    if(bankInventory == undefined)throw new Error("Bank should have invetory componenet");
+        await drawOneWayTransaction(sellerPos.position, bankPos.position, "💰", ecs)
+        if(bankInventory == undefined)throw new Error("Bank should have invetory componenet");
     
 
-    bankInventory.money += (saleData.price * TAX_RATE)
-    UpdateDrawText(ecs)
+        bankInventory.money += (saleData.price * TAX_RATE)
+        setCurrentActivity(`Rec $${(Math.round(saleData.price * TAX_RATE*100)/100)} f${saleData.sellerID} ST: $${saleData.price}`, bank, ecs)
+        UpdateDrawText(ecs)
+    }
 }  
 
 export async function handleWelfarePayments(ecs: ECS) {
     let smallestQolEntity: Entity = 0
 
-    const entities = ecs.getEntitiesWithComponents(drawComp, Inventory, wellfareRecievable)
+    const entities = ecs.getEntitiesWithComponents(DrawComp, Inventory, WellfareRecievable)
     for(const e of entities){
         const invetory = ecs.getComponent(e, Inventory)
         checkAndCreateResources(invetory!.resources)
@@ -56,22 +60,27 @@ export async function handleWelfarePayments(ecs: ECS) {
 
 }
 async function payWelfare(wellFareAmt: number, recipiantID: Entity, ecs: ECS){
-    const bankEntity = ecs.getEntitiesWithComponents(Bank)[0]
-    const bankPos = ecs.getComponent(bankEntity, drawComp)
-    const bankInv = ecs.getComponent(bankEntity, Inventory)
-    const recipiantPos = ecs.getComponent(recipiantID, drawComp)
-    const recipiantInv = ecs.getComponent(recipiantID, Inventory)
+    const bankEntities = ecs.getEntitiesWithComponents(Bank)
 
-
-    if(bankInv!.money < wellFareAmt * WELLFARE_MULTIPLIER) return
-    bankInv!.money -= wellFareAmt * WELLFARE_MULTIPLIER
-
-    UpdateDrawText(ecs)
-    await drawOneWayTransaction(bankPos!.position, recipiantPos!.position, "💰", ecs)
-
-    recipiantInv!.money += wellFareAmt * WELLFARE_MULTIPLIER
-
-    UpdateDrawText(ecs)
+    for(const bankEntity of bankEntities){
+        const bankPos = ecs.getComponent(bankEntity, DrawComp)
+        const bankInv = ecs.getComponent(bankEntity, Inventory)
+        const recipiantPos = ecs.getComponent(recipiantID, DrawComp)
+        const recipiantInv = ecs.getComponent(recipiantID, Inventory)
+    
+    
+        if(bankInv!.money < wellFareAmt * WELLFARE_MULTIPLIER) return
+        bankInv!.money -= wellFareAmt * WELLFARE_MULTIPLIER
+        setCurrentActivity(`Paying ${recipiantID} $${Math.round(wellFareAmt * WELLFARE_MULTIPLIER*100)/100}`, bankEntity, ecs)
+    
+        UpdateDrawText(ecs)
+        await drawOneWayTransaction(bankPos!.position, recipiantPos!.position, "💰", ecs)
+    
+        recipiantInv!.money += wellFareAmt * WELLFARE_MULTIPLIER
+        setCurrentActivity(`Paid ${recipiantID} $${Math.round(wellFareAmt * WELLFARE_MULTIPLIER*100)/100}`, bankEntity, ecs)
+    
+        UpdateDrawText(ecs)
+    }
 }
 function calcWelfareAmtForResource(resource: string){
     return (resourcePrices[resource] != null) ? resourcePrices[resource].avgSellPrice : 10

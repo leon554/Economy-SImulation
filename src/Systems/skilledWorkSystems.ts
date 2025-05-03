@@ -1,7 +1,7 @@
-import { ECS, Entity } from "../ecs"
+import { ECS, Entity } from "../Util/ecs"
 import { currentSimulationStep } from "../simulation"
 import { SaleType, ResourceType} from "../Util/type"
-import { Inventory, skilledWork } from "../Components/components"
+import { Inventory, SkilledWork } from "../Components/components"
 import { TAX_RATE, SPECIALISED_PROFIT_MARGIN } from "../constants"
 import { checkAndCreateResources, shuffleArray } from "../Util/util"
 import { calculateResourceData } from "../Util/log"
@@ -12,10 +12,10 @@ import { UpdateDrawText } from "./drawSystems"
 
 export function updateAvgBuyData(saleData: SaleType, ecs: ECS){
 
-    const entities = ecs.getEntitiesWithComponents(Inventory, skilledWork)
+    const entities = ecs.getEntitiesWithComponents(Inventory, SkilledWork)
 
     for(const entity of entities){
-        const skillWorkData = ecs.getComponent(entity, skilledWork)
+        const skillWorkData = ecs.getComponent(entity, SkilledWork)
         const inventoryData = ecs.getComponent(entity, Inventory)
 
         if(saleData.sellerID == entity && skillWorkData!.outputResources.includes(saleData.resource)){
@@ -37,11 +37,11 @@ export function updateAvgBuyData(saleData: SaleType, ecs: ECS){
 }
 
 export async function workSkilled(ecs: ECS){
-    const entities = ecs.getEntitiesWithComponents(skilledWork, Inventory)
+    const entities = ecs.getEntitiesWithComponents(SkilledWork, Inventory)
 
     for(const entity of entities){  
         const invetoryData = ecs.getComponent(entity, Inventory)
-        const workData = ecs.getComponent(entity, skilledWork)
+        const workData = ecs.getComponent(entity, SkilledWork)
             
         checkAndCreateResources(invetoryData!.resources)
        
@@ -57,7 +57,7 @@ export async function workSkilled(ecs: ECS){
     }
 }
 
-function createOutputResources(invetoryData: Inventory, workData: skilledWork){
+function createOutputResources(invetoryData: Inventory, workData: SkilledWork){
     if(!workData.inputResources.every(inputResource => invetoryData.resources[inputResource].amount > 1)) return 
 
     const minInputResourceAmt = Math.min(...workData.inputResources.map(inputResource => invetoryData.resources[inputResource].amount))

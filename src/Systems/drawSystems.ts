@@ -12,7 +12,7 @@ import { QolManager } from "../Util/qolManager";
 export function setEntitiesPos(ecs: ECS){
     const entities = ecs.getComponents(DrawComp)
 
-    const points = generateCirclePoints(window.innerWidth/3.2, entities.length, window.innerWidth/2.2, window.innerHeight/2)
+    const points = generateCirclePoints(window.innerWidth/3, entities.length, window.innerWidth/2.3, window.innerHeight/2)
     entities.forEach((e, i) => {
         e.position = {x: points[i].x, y: points[i].y}  
     })

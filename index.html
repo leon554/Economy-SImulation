@@ -10,7 +10,15 @@
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
     <div class="bodydiv">
-      <input type="range" name="" id="gamespeed" min="-20" max="0" step="0.1" value="-1">
+      <div class="controlsdiv">
+        <div class="gsdiv">
+          <p class="gamespeedtxt">Game Speed:</p>
+          <input type="range" name="" id="gamespeed" min="-20" max="0" step="0.5" value="-1">
+        </div>
+        <div>
+          <button class="pausebtn">Play</button>
+        </div>
+      </div>
       <canvas id="canvas"></canvas>
     </div>
   </body>

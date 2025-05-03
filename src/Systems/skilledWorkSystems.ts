@@ -44,9 +44,8 @@ export async function workSkilled(ecs: ECS){
         const workData = ecs.getComponent(entity, SkilledWork)
             
         checkAndCreateResources(invetoryData!.resources)
-       
         const minOutputResourceAmt = Math.min(...workData!.outputResources.map(outputResource => invetoryData!.resources[outputResource].amount))
-        if(minOutputResourceAmt/2 > getBiggestNonOutputResource(invetoryData!.resources, workData!.outputResources)) return 
+        if(minOutputResourceAmt/4 > getBiggestNonOutputResource(invetoryData!.resources, workData!.outputResources)) continue
 
         for(const inputResource of workData!.inputResources){
             await offerAndBuyResource(inputResource, entity, ecs)
@@ -63,7 +62,7 @@ function createOutputResources(invetoryData: Inventory, workData: SkilledWork){
     const minInputResourceAmt = Math.min(...workData.inputResources.map(inputResource => invetoryData.resources[inputResource].amount))
     const minOutputResourceAmt = Math.min(...workData.outputResources.map(outputResource => invetoryData.resources[outputResource].amount))
     
-    if(minOutputResourceAmt/2 > getBiggestNonOutputResource(invetoryData.resources, workData.outputResources)) return 
+    if(minOutputResourceAmt/4 > getBiggestNonOutputResource(invetoryData.resources, workData.outputResources)) return 
 
     const produceAmt = minInputResourceAmt - getSmallestResouceAmt(invetoryData.resources)
     if(produceAmt <= 0) return

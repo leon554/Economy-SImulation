@@ -1,6 +1,8 @@
 import { ActivityTracker, Inventory, SkilledWork, UnSkilledWork } from "../Components/components";
 import { ECS, Entity } from "../Util/ecs";
+import { QolManager } from "../Util/qolManager";
 import { TierManager } from "../Util/tierManager";
+import { isResourcesAllZero } from "../Util/util";
 
 
 export function addRecipesForTiers(ecs: ECS){
@@ -30,4 +32,15 @@ export function CalculateTotalMoney(ecs: ECS){
         totalMoney += ecs.getComponent(entity, Inventory)!.money
     }
     return totalMoney
+}
+export function calculateAVGQOL(ecs: ECS){
+    const invComps = ecs.getComponents(Inventory)
+    let qolSum = 0
+    let totalEntries = 0
+    for(const invComp of invComps){
+        if(isResourcesAllZero(invComp.resources)) continue
+        qolSum += QolManager.calculateQOL(invComp.resources)
+        totalEntries++
+    }
+    return Math.round(qolSum/totalEntries*100)/100
 }

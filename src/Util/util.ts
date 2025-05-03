@@ -72,3 +72,7 @@ export function checkAndCreateResources(resources: ResourceType){
     }
   })
 }
+export function isResourcesAllZero(resources: ResourceType){
+  const resourcesValues = Object.values(resources)
+  return resourcesValues.every(r => r.amount == 0)
+}

@@ -1,11 +1,11 @@
 import { ECS, Entity } from "../Util/ecs"
-import { Inventory, UnSkilledWork, DrawComp, IsTradeable, Bank } from "../Components/components"
+import { Inventory, UnSkilledWork, DrawComp, IsTradeable} from "../Components/components"
 import { checkAndCreateResources, ResourceTable} from "../Util/util"
 import { GATHER_AMOUNT, TAX_RATE } from "../constants"
 import { drawOneWayTransaction, getCenterPoint, UpdateDrawText, drawTransaction} from "./drawSystems"
 import { QolManager } from "../Util/qolManager"
 import { SellerReturnType, DenyReason, ResourceType } from "../Util/type"
-import { days } from "../simulation"
+import { currentDay } from "../simulation"
 import { MAX_BUY_SELL_PRICE } from "../constants"
 import { calculateResourceData } from "../Util/log"
 import { saleEvent } from "../simulation"
@@ -116,7 +116,7 @@ async function isWillingToSellX(resource: string, price: number, buyerID: number
         
     await drawTransaction(buyerID, sellerID, resource, ecs)
 
-    const tax = (price * TAX_RATE) * ecs.getEntitiesWithComponents(Bank).length
+    const tax = (price * TAX_RATE)
     const profit = price - tax
     seller!.money += profit
     buyer!.resources[resource].amount++
@@ -136,9 +136,9 @@ async function isWillingToSellX(resource: string, price: number, buyerID: number
 function shouldReduceSellPrice(offerPrice: number, resource: string, resources: ResourceType){
     if(offerPrice >  resources[resource].sellPrice) return false
 
-    if(resources[resource].dayPriceLastUpdated < days){
+    if(resources[resource].dayPriceLastUpdated < currentDay){
         resources[resource].sellPrice -= resources[resource].sellPrice > 1 ? 1 : 0
-        resources[resource].dayPriceLastUpdated = days
+        resources[resource].dayPriceLastUpdated = currentDay
     }
 
     return true

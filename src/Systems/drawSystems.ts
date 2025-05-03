@@ -30,7 +30,6 @@ export function generateCirclePoints(radius: number, amount: number, x: number, 
   
     return points;
 }
-console.log("SDFHJKSHGDKJ 123")
 let drawEvents: Function[] = []
 export function addDrawEvent(func: Function){
     drawEvents.push(func)

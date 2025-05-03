@@ -7,7 +7,7 @@ export const WELLFARE_MULTIPLIER = 3
 export const PAY_WELFARE_TO_LOWEST_QOL = false
 //
 export const MAX_BUY_SELL_PRICE = 30
-export const SPECIALISED_PROFIT_MARGIN = 0.4
+export const SPECIALISED_PROFIT_MARGIN = 0.8
 export let GAME_SPEED = 1
 export function setGAMESPEED(speed: number){
     GAME_SPEED = speed

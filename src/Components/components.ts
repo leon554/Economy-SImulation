@@ -43,8 +43,10 @@ export class ActivityTracker{
     currentActivity: string =""
     constructor(){}
 }
+
 export class IsTradeable{}
 export class Bank {}
+export class Person{}
 export class WellfareRecievable {}
 
 

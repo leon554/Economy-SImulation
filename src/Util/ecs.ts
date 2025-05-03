@@ -45,4 +45,10 @@ export class ECS{
 
         return entityIds.filter(id => componentMaps.every(componentMap => componentMap?.has(id)))
     }
+
+    deleteEntity(entity: Entity){
+        for (const [_, componentMap] of this.components) {
+            componentMap.delete(entity);
+        }  
+    }
 }

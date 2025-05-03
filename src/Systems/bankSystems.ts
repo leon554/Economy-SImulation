@@ -24,8 +24,8 @@ export async function handleSaleTax(saleData: SaleType, ecs: ECS) {
         if(bankInventory == undefined)throw new Error("Bank should have invetory componenet");
     
 
-        bankInventory.money += (saleData.price * TAX_RATE)
-        setCurrentActivity(`Rec $${(Math.round(saleData.price * TAX_RATE*100)/100)} f${saleData.sellerID} ST: $${saleData.price}`, bank, ecs)
+        bankInventory.money += (saleData.price * TAX_RATE)/banks.length
+        setCurrentActivity(`Rec $${(Math.round((saleData.price * TAX_RATE/banks.length)*100)/100)} f${saleData.sellerID} ST: $${saleData.price}`, bank, ecs)
         UpdateDrawText(ecs)
     }
 }  

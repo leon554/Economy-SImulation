@@ -1,12 +1,11 @@
 import { ECS, Entity } from "../Util/ecs"
 import { Inventory, UnSkilledWork, DrawComp, IsTradeable} from "../Components/components"
-import { checkAndCreateResources, ResourceTable} from "../Util/util"
+import { checkAndCreateResources} from "../Util/util"
+import { ResourceTable } from "../simulationCreator"
 import { GATHER_AMOUNT, TAX_RATE } from "../constants"
 import { drawOneWayTransaction, getCenterPoint, UpdateDrawText, drawTransaction} from "./drawSystems"
 import { QolManager } from "../Util/qolManager"
 import { SellerReturnType, DenyReason, ResourceType } from "../Util/type"
-import { currentDay } from "../simulation"
-import { MAX_BUY_SELL_PRICE } from "../constants"
 import { calculateResourceData } from "../Util/log"
 import { saleEvent } from "../simulation"
 import { setCurrentActivity } from "./utilSystems"
@@ -85,7 +84,7 @@ export async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
             }
         }
             
-        if(inventoryData!.resources[resource].buyPrice < MAX_BUY_SELL_PRICE && NoSupply == false){
+        if(NoSupply == false){
             inventoryData!.resources[resource].buyPrice++
         }else break
     }
@@ -95,14 +94,13 @@ export async function MakeBuyOffer(resource: string, entity: Entity, ecs: ECS){
 }
 
 async function isWillingToSellX(resource: string, price: number, buyerID: number, sellerID: number, ecs: ECS): Promise<SellerReturnType>{
-    const resourceReserveAmount = 6
     const inventoryData = ecs.getComponent(sellerID, Inventory)
 
     checkAndCreateResources(inventoryData!.resources)
 
     if(QolManager.bestSellResourceForQol(inventoryData!.resources) != (resource)) return {saleSucces: false, denyReason: DenyReason.NotEnoughSupply}
         
-    if(shouldReduceSellPrice(price, resource, inventoryData!.resources)) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
+    if(isOfferHighEnough(price, resource, inventoryData!.resources)) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
 
     if(price <  inventoryData!.resources[resource].minSellPrice) return {saleSucces: false, denyReason: DenyReason.OfferToLow}
 
@@ -128,23 +126,28 @@ async function isWillingToSellX(resource: string, price: number, buyerID: number
 
     await UpdateDrawText(ecs)
 
-    increaseSellPriceIfSoldOut(resource, resourceReserveAmount, seller!)
+    increaseSellPriceIfSoldOut(resource, seller!, sellerID, ecs)
 
     return {saleSucces: true, denyReason: DenyReason.None}
 }
 
-function shouldReduceSellPrice(offerPrice: number, resource: string, resources: ResourceType){
-    if(offerPrice >  resources[resource].sellPrice) return false
-
-    if(resources[resource].dayPriceLastUpdated < currentDay){
-        resources[resource].sellPrice -= resources[resource].sellPrice > 1 ? 1 : 0
-        resources[resource].dayPriceLastUpdated = currentDay
-    }
-
+function isOfferHighEnough(offerPrice: number, resource: string, resources: ResourceType){
+    if(offerPrice >=  resources[resource].sellPrice) return false
     return true
 }
-function increaseSellPriceIfSoldOut(resource: string, resourceReserveAmount: number, seller: Inventory){
-    //change this to reduce selle price if its not the chosen sell item
-    if(seller.resources[resource].amount > resourceReserveAmount) return 
-        seller.resources[resource].sellPrice += (seller.resources[resource].sellPrice < MAX_BUY_SELL_PRICE) ? 1: 0
+export function reducePricesIfNecasary(ecs: ECS){
+    const entities = ecs.getEntitiesWithComponents(Inventory)
+    for(const entity of entities){
+        const invData = ecs.getComponent(entity, Inventory)
+        const bestSellResource = QolManager.bestSellResourceForQol(invData!.resources)
+        if(bestSellResource === "") continue
+        if(invData!.resources[bestSellResource].sellPrice < 1) continue
+        invData!.resources[bestSellResource].sellPrice--
+        setCurrentActivity(`Reduced Price ${ResourceTable[bestSellResource]} to ${invData!.resources[bestSellResource].sellPrice}`, entity, ecs)
     }
+}
+function increaseSellPriceIfSoldOut(resource: string, seller: Inventory, sellerID: Entity, ecs:ECS){
+    if(QolManager.bestSellResourceForQol(seller.resources) == resource) return 
+    seller.resources[resource].sellPrice += 1
+    setCurrentActivity(`Increase Price ${ResourceTable[resource]} to $${seller.resources[resource].sellPrice}`, sellerID, ecs)
+}

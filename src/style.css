@@ -15,27 +15,37 @@
 }
 canvas{
   border-radius: 10px;
+  margin: auto;
   overflow: hidden;
   border: 1px solid white;
 }
+body{
 
+  display: flex;
+  flex-direction: column  ;
+  align-items: center;
+}
 .gamespeedtxt{
   font:lighter;
 }
 .controlsdiv{
+  width: 400px;
   border: 1px solid white;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
   display: flex;
   gap: 10px;
   border-radius: 10px;
-  margin-top: 30px;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 50px;
 }
 .gsdiv{
   justify-content: center;
   display: flex;
+  align-items: center;
   gap: 10px;
+
 }
 .pausebtn{
   background-color: transparent;
@@ -45,4 +55,14 @@ canvas{
 }
 .pausebtn:hover{
   cursor: pointer;
+}
+.vardiv{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.simp{
+  line-height: 10px;
+  font-weight: bold;
 }

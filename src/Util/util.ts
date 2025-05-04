@@ -1,4 +1,5 @@
 import { ResourceType } from "./type"
+import { ResourceTable } from "../simulationCreator"
 
 let workerID = 0
 export function getID(){
@@ -16,34 +17,6 @@ export function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-export const ResourceTable : {[key: string]: string} = {
-  "water": "💧",
-  "sheep": "🐑",
-  "meat": "🥩",
-  "wool": "🧶",
-  "shirt": "👕"
-}
-
-export const ProfesionToResource : {[key: string]: string} = {
-  "water": "water",
-  "sheep": "sheep",
-  "meat": "meat",
-}
-export const profesionTable : {[key: string]: string} = {
-  "water": "💧",
-  "sheep": "🐑",
-  "butcher": "🥩",
-  "skinner": "🧶",
-  "shirt": "👕",
-  "meat": "🥩"
-}
-export const profesionIcon : {[key: string]: string} = {
-  "water": "👷",
-  "sheep": "🧑‍🌾",
-  "meat": "🧑‍🌾",
-  "bank": "🏦",
-  "butcher": "🙋"
-}
 export const vitalResources = ["water", "meat"]
 
 export function CreateResourceData(amount: number, buyPrice: number, sellPrice: number, tier: number){

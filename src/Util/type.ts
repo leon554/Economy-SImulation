@@ -31,12 +31,11 @@ export interface SaleType{
     price: number
     resource: string
 }
-export enum EntityType {
-    unSkilledWorker ="unSkilledWorker",
-    specialisedWorker="specialisedWorker",
-    bank="bank",
-    baseWorker="baseWorker",
-    institution="institution",
+export enum SimulationStep{
+    Working = "Working",
+    Trading = "Trading",
+    Consuming = "Consuming",
+    Idle ="Idle"
 }
 export const entitiesInCategoriesIntitial = {
     unSkilledWorkers: [],

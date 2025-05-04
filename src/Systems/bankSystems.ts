@@ -40,7 +40,7 @@ export async function handleWelfarePayments(ecs: ECS) {
 
         const meatAmt = invetory!.resources["meat"].amount
         const waterAmt = invetory!.resources["water"].amount
-        const minResourceAmt = (MIN_VITAL_RESOURCE_AMT - 2 > 0) ? MIN_VITAL_RESOURCE_AMT - 2 : MIN_VITAL_RESOURCE_AMT
+        const minResourceAmt = MIN_VITAL_RESOURCE_AMT
 
         if(meatAmt < minResourceAmt){
             await payWelfare(calcWelfareAmtForResource("meat"), e, ecs)

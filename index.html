@@ -1,25 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-    <div class="bodydiv">
-      <div class="controlsdiv">
-        <div class="gsdiv">
-          <p class="gamespeedtxt">Game Speed:</p>
-          <input type="range" name="" id="gamespeed" min="-20" max="0" step="0.5" value="-1">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Vite + TS</title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script type="module" src="/src/main.ts"></script>
+        <h1>Trade Simulator</h1>
+        <canvas id="canvas"></canvas>
+        <div class="controlsdiv">
+            <div class="gsdiv">
+                <p class="gamespeedtxt">Game Speed:</p>
+                <input
+                    type="range"
+                    name=""
+                    id="gamespeed"
+                    min="-20"
+                    max="0"
+                    step="0.5"
+                    value="-1" />
+                  <div>
+                    <button class="pausebtn">Play</button>
+                  </div>
+            </div>
+            <div class="vardiv">
+              <p class="simp">Simulation Parameters</p>
+              <div class="control-group">
+                <label for="gatherSlider">Gather Amount:</label>
+                <input type="range" min="1" max="20" id="gatherSlider" value="5"/>
+                <span id="gatherVal">5</span>
+              </div>
+            
+              <div class="control-group">
+                <label for="minVitalSlider">Min Vital Resource Amount:</label>
+                <input type="range" min="1" max="20" id="minVitalSlider" value="1"/>
+                <span id="minVitalVal">5</span>
+              </div>
+            
+              <div class="control-group">
+                <label for="taxSlider">Tax Rate:</label>
+                <input type="range" min="0" max="1" step="0.01" id="taxSlider" value="0.2"/>
+                <span id="taxVal">0.2</span>
+              </div>
+            
+              <div class="control-group">
+                <label for="welfareMultiplierSlider">Welfare Multiplier:</label>
+                <input type="range" min="1" max="10" step="0.1" id="welfareMultiplierSlider" value="3"/>
+                <span id="welfareMultiplierVal">3</span>
+              </div>
+            
+              <div class="control-group">
+                <label for="welfareCheckbox">Pay Welfare to Lowest QoL:</label>
+                <input type="checkbox" id="welfareCheckbox" />
+              </div>
+            
+           
+            
+              <div class="control-group">
+                <label for="profitMarginSlider">Specialised Profit Margin:</label>
+                <input type="range" min="0" max="2" step="0.01" id="profitMarginSlider" value="0.8"/>
+                <span id="profitMarginVal">0.8</span>
+              </div>
+            
+              <div class="control-group">
+                <label for="minimalDataCheckbox">Show Minimal Entity Data:</label>
+                <input type="checkbox" id="minimalDataCheckbox" />
+              </div>
+            </div>
         </div>
-        <div>
-          <button class="pausebtn">Play</button>
-        </div>
-      </div>
-      <canvas id="canvas"></canvas>
-    </div>
-  </body>
+    </body>
 </html>

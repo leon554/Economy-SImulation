@@ -1,7 +1,7 @@
 import { d } from "../main"
 import { HorizontalAllign } from "../draw/Draw"
 import { color } from "../draw/Color"
-import {  ResourceTable } from "./util"
+import { ResourceTable } from "../simulationCreator"
 import { TierManager } from "./tierManager"
 import { ECS } from "./ecs"
 import { Inventory } from "../Components/components"
@@ -41,7 +41,7 @@ export function calculateResourceData(ecs: ECS){
                 resourceDict[r[0]].frequency++
                 resourceDict[r[0]].amount += r[1].amount
                 resourceDict[r[0]].maxPrice = (r[1].sellPrice > resourceDict[r[0]].maxPrice) ? r[1].sellPrice : resourceDict[r[0]].maxPrice
-                resourceDict[r[0]].minPrice = (r[1].sellPrice < resourceDict[r[0]].maxPrice) ? r[1].sellPrice : resourceDict[r[0]].maxPrice
+                resourceDict[r[0]].minPrice = (r[1].sellPrice < resourceDict[r[0]].maxPrice) ? r[1].sellPrice : resourceDict[r[0]].minPrice
             }
         })
     })

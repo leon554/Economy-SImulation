@@ -1,6 +1,6 @@
 import { ECS, Entity } from "../Util/ecs"
 import { currentSimulationStep } from "../simulation"
-import { SaleType, ResourceType} from "../Util/type"
+import { SaleType, ResourceType, SimulationStep} from "../Util/type"
 import { Inventory, SkilledWork } from "../Components/components"
 import { TAX_RATE, SPECIALISED_PROFIT_MARGIN } from "../constants"
 import { checkAndCreateResources, shuffleArray } from "../Util/util"
@@ -23,7 +23,7 @@ export function updateAvgBuyData(saleData: SaleType, ecs: ECS){
             skillWorkData!.profit += saleData.price
         }
     
-        if(saleData.buyerID != entity || currentSimulationStep == "Trading") return
+        if(saleData.buyerID != entity || currentSimulationStep == SimulationStep.Trading) return
         skillWorkData!.totalBought++
         skillWorkData!.totalBoughtPrice += saleData.price
         skillWorkData!.profit -= saleData.price

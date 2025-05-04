@@ -1,4 +1,4 @@
-import { ResourceTable } from "./util"
+import { ResourceTable } from "../simulationCreator"
 
 interface ResourceRecipeType{
     outputResources: string[]

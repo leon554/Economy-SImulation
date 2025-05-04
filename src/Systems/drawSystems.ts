@@ -1,18 +1,19 @@
 import { ECS, Entity } from "../Util/ecs";
 import { ActivityTracker, DrawComp, Inventory } from "../Components/components";
 import { d } from "../main";
-import { getResourcesAsString, profesionIcon, profesionTable, ResourceTable } from "../Util/util";
+import { getResourcesAsString} from "../Util/util";
+import { ResourceTable, profesionIcon } from "../simulationCreator";
 import { HorizontalAllign } from "../draw/Draw";
 import { color } from "../draw/Color";
 import { canvas } from "../main";
-import { GAME_SPEED } from "../constants";
+import { GAME_SPEED, SHOW_MINIMAL_ENTITY_DATA } from "../constants";
 import { Position } from "../Util/type";
 import { QolManager } from "../Util/qolManager";
 
 export function setEntitiesPos(ecs: ECS){
     const entities = ecs.getComponents(DrawComp)
 
-    const points = generateCirclePoints(window.innerWidth/3, entities.length, window.innerWidth/2.3, window.innerHeight/2)
+    const points = generateCirclePoints(Math.min(window.innerWidth, window.innerHeight)/3.5, entities.length, Math.min(window.innerWidth *0.95, 1000)/2, window.innerHeight/2.3)
     entities.forEach((e, i) => {
         e.position = {x: points[i].x, y: points[i].y}  
     })
@@ -56,8 +57,12 @@ export function UpdateDrawText(ecs: ECS){
         const drawcomp = ecs.getComponent(entity, DrawComp)
         const inventory = ecs.getComponent(entity, Inventory)
         const activityData = (ecs.hasComponent(entity, ActivityTracker)) ? ecs.getComponent(entity, ActivityTracker) : null
-
-        drawcomp!.drawText = `ID: ${entity} $${Math.round(inventory!.money)} ${profesionTable[drawcomp!.profesion] ? `p${profesionTable[drawcomp!.profesion]}` : ""} QOL: ${Math.round(QolManager.calculateQOL(inventory!.resources)*100)/100}^ ${getResourcesAsString(inventory!.resources)} ^ ${(activityData) ? activityData.currentActivity : ""}`
+        if(SHOW_MINIMAL_ENTITY_DATA){
+            drawcomp!.drawText = `$${Math.round(inventory!.money)} ^ ${getResourcesAsString(inventory!.resources)}`
+        }else{
+            drawcomp!.drawText = `ID: ${entity} $${Math.round(inventory!.money)} ${drawcomp!.profesion.length > 3 ? drawcomp!.profesion.slice(0, 3) : drawcomp!.profesion} QOL: ${Math.round(QolManager.calculateQOL(inventory!.resources)*100)/100}^ ${getResourcesAsString(inventory!.resources)} ^ ${(activityData) ? activityData.currentActivity : ""}`
+        }
+        
     }
     drawEntities(ecs)
 }

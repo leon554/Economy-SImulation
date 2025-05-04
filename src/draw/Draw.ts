@@ -17,6 +17,10 @@ export class Draw{
       canvas.width = this.width
       canvas.height = this.height
     }
+    setCanvasDimesions(){
+      this.canvas.width = this.width
+      this.canvas.height = this.height
+    }
     Clear(){
       this.ctx.clearRect(0,0,this.width,this.height)
     }

@@ -5,7 +5,7 @@ import { drawOneWayTransaction, UpdateDrawText } from "./drawSystems"
 import { TAX_RATE } from "../constants"
 import { MIN_VITAL_RESOURCE_AMT, PAY_WELFARE_TO_LOWEST_QOL, WELLFARE_MULTIPLIER} from "../constants"
 import { QolManager } from "../Util/qolManager"
-import { resourcePrices } from "../Util/log"
+import { resourceAvgPriceData } from "../Util/log"
 import { checkAndCreateResources } from "../Util/util"
 import { setCurrentActivity } from "./utilSystems"
 
@@ -83,5 +83,5 @@ async function payWelfare(wellFareAmt: number, recipiantID: Entity, ecs: ECS){
     }
 }
 function calcWelfareAmtForResource(resource: string){
-    return (resourcePrices[resource] != null) ? resourcePrices[resource].avgSellPrice : 10
+    return (resourceAvgPriceData[resource] != null) ? resourceAvgPriceData[resource].avgSellPrice : 10
 }

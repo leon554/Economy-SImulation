@@ -24,13 +24,11 @@ export async function Work(ecs: ECS){
         for(const outputResource of workdata!.productionResources){
             await drawOneWayTransaction(getCenterPoint(), drawdata!.position, ResourceTable[outputResource], ecs)
             inventoryData!.resources[outputResource].amount += GATHER_AMOUNT;
-                
+            calculateResourceData(ecs)
             setCurrentActivity(`Worked ${ResourceTable[outputResource]} +${GATHER_AMOUNT}`, entity, ecs)
             UpdateDrawText(ecs)
         }
     }
-
-    calculateResourceData(ecs)
 }
 
 export async function MakeTrades(ecs: ECS){

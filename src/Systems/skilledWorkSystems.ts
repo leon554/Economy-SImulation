@@ -51,12 +51,12 @@ export async function workSkilled(ecs: ECS){
             await offerAndBuyResource(inputResource, entity, ecs)
         }
         workData!.inputResources = shuffleArray(workData!.inputResources)
-        createOutputResources(invetoryData!, workData!)
+        createOutputResources(invetoryData!, workData!, ecs)
         calculateResourceData(ecs)
     }
 }
 
-function createOutputResources(invetoryData: Inventory, workData: SkilledWork){
+function createOutputResources(invetoryData: Inventory, workData: SkilledWork, ecs: ECS){
     if(!workData.inputResources.every(inputResource => invetoryData.resources[inputResource].amount > 1)) return 
 
     const minInputResourceAmt = Math.min(...workData.inputResources.map(inputResource => invetoryData.resources[inputResource].amount))
@@ -70,6 +70,7 @@ function createOutputResources(invetoryData: Inventory, workData: SkilledWork){
     for(let i = 0; i < produceAmt; i++){
         workData.inputResources.forEach(inputResource => invetoryData.resources[inputResource].amount--)
         workData.outputResources.forEach(outputResource => invetoryData.resources[outputResource].amount++)
+        calculateResourceData(ecs)
     }
 }
 async function offerAndBuyResource(resource: string, entity: Entity, ecs: ECS){

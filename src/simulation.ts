@@ -34,6 +34,7 @@ loadSimulationEntities()
 
 
 setEntitiesPos(ecs)
+//make a logger that logs the avg sale price of resources every time event is fired 
 saleEvent.subscribe((saleData: SaleType, ecs: ECS) => handleSaleTax(saleData, ecs))
 saleEvent.subscribe((saleData: SaleType, ecs: ECS) => updateAvgBuyData(saleData, ecs))
 

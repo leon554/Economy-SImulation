@@ -1,4 +1,5 @@
 import { ActivityTracker, Inventory, SkilledWork, UnSkilledWork } from "../Components/components";
+import { ActivityMananger } from "../Util/activityManager";
 import { ECS, Entity } from "../Util/ecs";
 import { QolManager } from "../Util/qolManager";
 import { TierManager } from "../Util/tierManager";
@@ -23,6 +24,7 @@ export function setCurrentActivity(currentActivity: string, entity: Entity, ecs:
     if(!ecs.hasComponent(entity, ActivityTracker)) return
     const activityData = ecs.getComponent(entity, ActivityTracker)!
     activityData.currentActivity = currentActivity
+    ActivityMananger.logActivity(`(${currentActivity}) Sender: ${entity}`)
 }
 
 export function CalculateTotalMoney(ecs: ECS){

@@ -83,6 +83,5 @@ setupSlider('minVitalSlider', 'MIN_VITAL_RESOURCE_AMT', 'minVitalVal', parseInt)
 setupSlider('taxSlider', 'TAX_RATE', 'taxVal', parseFloat);
 setupSlider('welfareMultiplierSlider', 'WELLFARE_MULTIPLIER', 'welfareMultiplierVal', parseFloat);
 setupSlider('profitMarginSlider', 'SPECIALISED_PROFIT_MARGIN', 'profitMarginVal', parseFloat);
-
 setupCheckbox('welfareCheckbox', 'PAY_WELFARE_TO_LOWEST_QOL');
 setupCheckbox('minimalDataCheckbox', 'SHOW_MINIMAL_ENTITY_DATA');

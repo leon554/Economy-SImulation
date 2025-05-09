@@ -6,6 +6,7 @@ import { TierManager } from "./tierManager"
 import { ECS } from "./ecs"
 import { Inventory } from "../Components/components"
 import { addDrawEvent } from "../Systems/drawSystems"
+import { isResourcesAllZero } from "./util"
 
 //rewrite this to be more acurate and to consider the new min sell price atribute
 let avgResourcePriceString = ""
@@ -44,7 +45,8 @@ const resourceDataInitValues: ResourceData = {
 export function calculateResourceData(ecs: ECS){
     avgResourcePriceString = "", resourcePriceMaxString = "", resourcePriceMinString = "", resourceAmountString = ""
     const entities = ecs.getEntitiesWithComponents(Inventory)
-    const entityCount = entities.length 
+    const nonZeroResourceEntitites = entities.filter(e => !isResourcesAllZero(ecs.getComponent(e, Inventory)!.resources))
+    const entityCount = nonZeroResourceEntitites.length 
 
     const resourceData: {[key: string]: ResourceData} = {}
     for(const entity of entities){

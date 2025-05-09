@@ -14,7 +14,8 @@ import { addDrawEvent } from "./Systems/drawSystems";
 import { addRecipesForTiers, calculateAVGQOL, CalculateTotalMoney } from "./Systems/utilSystems";
 import { calculateResourceData, InitLog } from "./Util/log";
 import { consumeResourcesAndDelDead } from "./Systems/resourceConsumptionSystem";
-import { loadSimulationEntities } from "./simulationCreator";
+import { loadSimulationEntities, ResourceTable } from "./simulationCreator";
+import { ActivityMananger } from "./Util/activityManager";
 
 export let currentDay = 0;
 export let currentSimulationStep = SimulationStep.Idle
@@ -34,9 +35,11 @@ loadSimulationEntities()
 
 
 setEntitiesPos(ecs)
-//make a logger that logs the avg sale price of resources every time event is fired 
 saleEvent.subscribe((saleData: SaleType, ecs: ECS) => handleSaleTax(saleData, ecs))
 saleEvent.subscribe((saleData: SaleType, ecs: ECS) => updateAvgBuyData(saleData, ecs))
+saleEvent.subscribe((saleData: SaleType) => 
+  ActivityMananger.logActivity(`${saleData.sellerID} sold ${ResourceTable[saleData.resource]} to ${saleData.buyerID} for $${saleData.price}`
+))
 
 
 export async function onLoad(){

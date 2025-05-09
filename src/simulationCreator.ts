@@ -14,10 +14,10 @@ export const profesionIcon : {[key: string]: string} = {
   "sheep": "🧑‍🌾",
   "meat": "🧑‍🌾",
   "bank": "🏦",
-  "butcher": "🙋"
+  "butcher": "🙋",
+  "unemployed" : "🙍‍♂️"
 }
 export function loadSimulationEntities(){
-
     EntityFactory.createUnskilledWorker("water", ["water", "water"], 200, ecs)
     EntityFactory.createUnskilledWorker("water", [], 200, ecs)
     EntityFactory.createUnskilledWorker("sheep", ["sheep"], 200, ecs)
@@ -27,4 +27,5 @@ export function loadSimulationEntities(){
     EntityFactory.createSkilledWorker("shirt", ["wool"], ["shirt"], 200, ecs)
     EntityFactory.createNonTradableBank(1000, ecs)
     EntityFactory.createTradableBank(1000, ecs)
+    EntityFactory.createUnemployedPerson("unemployed", 100, ecs)
 }

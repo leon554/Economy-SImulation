@@ -36,4 +36,8 @@ export class EntityFactory{
         ecs.addComponent(id, IsTradeable, new IsTradeable())
         return id
     }
+    static createUnemployedPerson(profesion: string, money: number, ecs: ECS){
+        const id = this.createBaseWorker(profesion, money, ecs)
+        return id
+    }
 }

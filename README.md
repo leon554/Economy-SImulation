@@ -36,7 +36,6 @@ In this simulation:
 
 ## 📸 Screenshots
 
-
 ---
-
+![Untitled video - Made with Clipchamp (1)](https://github.com/user-attachments/assets/727ab389-ceef-4797-9b99-1041b9fade75)
 ![image](https://github.com/user-attachments/assets/f0ac969c-5256-4804-bde6-5dbe12edf8bc)
